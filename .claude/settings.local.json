@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(cmd.exe /c \"where node 2>NUL & where npm 2>NUL\")",
+      "Bash(cmd.exe /c \"node --version 2>NUL && npm --version 2>NUL\")",
+      "Bash(cmd.exe /c \"where bun 2>NUL & where pnpm 2>NUL & where yarn 2>NUL & where deno 2>NUL & where python 2>NUL\")",
+      "Bash(cmd.exe /c \"echo %PATH%\")",
+      "Bash(powershell.exe -Command \"Get-Command node -ErrorAction SilentlyContinue | Select-Object Source; Get-Command npm -ErrorAction SilentlyContinue | Select-Object Source\")",
+      "Bash(winget install:*)",
+      "Bash(export PATH=\"$PATH:/c/Program Files/nodejs\")",
+      "Bash(timeout 5 node:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ]
+  }
+}
