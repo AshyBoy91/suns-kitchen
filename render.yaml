@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: suns-kitchen
+    name: jaidee-resort
     runtime: node
     plan: free
     buildCommand: npm install

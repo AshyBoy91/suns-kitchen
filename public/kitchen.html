@@ -3,431 +3,109 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sun's Kitchen - Kitchen Display</title>
+  <title>Kitchen - JaiDee Resort</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    :root {
-      --bg: #1a1a2e;
-      --card: #16213e;
-      --card-border: #0f3460;
-      --text: #eaeaea;
-      --text-dim: #8892b0;
-      --accent: #e94560;
-      --new: #ff6b35;
-      --preparing: #f7b731;
-      --ready: #20bf6b;
-      --done: #4b7bec;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
-
-    .header {
-      background: var(--card);
-      padding: 16px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 2px solid var(--card-border);
-    }
-    .header h1 { font-size: 22px; color: var(--accent); }
-    .header .stats {
-      display: flex;
-      gap: 20px;
-      font-size: 13px;
-    }
-    .stat-badge {
-      padding: 4px 12px;
-      border-radius: 12px;
-      font-weight: 600;
-    }
-    .stat-new { background: rgba(255,107,53,0.2); color: var(--new); }
-    .stat-prep { background: rgba(247,183,49,0.2); color: var(--preparing); }
-    .stat-ready { background: rgba(32,191,107,0.2); color: var(--ready); }
-
-    .connection-status {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      color: var(--text-dim);
-    }
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--ready);
-    }
-    .status-dot.disconnected { background: var(--accent); }
-
-    /* Filter tabs */
-    .filters {
-      display: flex;
-      gap: 8px;
-      padding: 14px 24px;
-      background: var(--card);
-      border-bottom: 1px solid var(--card-border);
-    }
-    .filter-btn {
-      padding: 6px 16px;
-      border: 1px solid var(--card-border);
-      border-radius: 6px;
-      background: transparent;
-      color: var(--text-dim);
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .filter-btn.active {
-      background: var(--accent);
-      color: white;
-      border-color: var(--accent);
-    }
-
-    /* Orders grid */
-    .orders-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 16px;
-      padding: 20px 24px;
-    }
-
-    .order-card {
-      background: var(--card);
-      border: 2px solid var(--card-border);
-      border-radius: 12px;
-      overflow: hidden;
-      transition: border-color 0.3s;
-      animation: slideIn 0.3s ease;
-    }
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .order-card.status-new { border-color: var(--new); }
-    .order-card.status-preparing { border-color: var(--preparing); }
-    .order-card.status-ready { border-color: var(--ready); }
-    .order-card.status-done { border-color: var(--done); opacity: 0.6; }
-
-    .order-header {
-      padding: 12px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .order-card.status-new .order-header { background: rgba(255,107,53,0.1); }
-    .order-card.status-preparing .order-header { background: rgba(247,183,49,0.1); }
-    .order-card.status-ready .order-header { background: rgba(32,191,107,0.1); }
-    .order-card.status-done .order-header { background: rgba(75,123,236,0.1); }
-
-    .order-id { font-size: 20px; font-weight: 800; }
-    .order-table {
-      font-size: 14px;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 6px;
-      background: rgba(255,255,255,0.1);
-    }
-    .order-time {
-      font-size: 12px;
-      color: var(--text-dim);
-    }
-    .status-label {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      padding: 3px 8px;
-      border-radius: 4px;
-    }
-    .status-new .status-label { background: var(--new); color: white; }
-    .status-preparing .status-label { background: var(--preparing); color: #333; }
-    .status-ready .status-label { background: var(--ready); color: white; }
-    .status-done .status-label { background: var(--done); color: white; }
-
-    .order-items {
-      padding: 12px 16px;
-    }
-    .order-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 6px 0;
-      font-size: 15px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    .order-item:last-child { border-bottom: none; }
-    .item-qty {
-      display: inline-block;
-      background: rgba(255,255,255,0.1);
-      padding: 1px 7px;
-      border-radius: 4px;
-      font-weight: 700;
-      font-size: 13px;
-      margin-right: 8px;
-    }
-
-    .order-notes {
-      padding: 0 16px 12px;
-      font-size: 13px;
-      color: var(--preparing);
-      font-style: italic;
-    }
-    .order-notes::before {
-      content: "Note: ";
-      font-weight: 700;
-    }
-
-    .order-actions {
-      padding: 0 16px 14px;
-      display: flex;
-      gap: 8px;
-    }
-    .action-btn {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      transition: transform 0.1s;
-    }
-    .action-btn:active { transform: scale(0.97); }
-    .btn-prepare { background: var(--preparing); color: #333; }
-    .btn-ready { background: var(--ready); color: white; }
-    .btn-done { background: var(--done); color: white; }
-
-    .empty-state {
-      text-align: center;
-      padding: 80px 40px;
-      color: var(--text-dim);
-    }
-    .empty-state .icon { font-size: 64px; margin-bottom: 16px; }
-    .empty-state h2 { font-size: 20px; margin-bottom: 8px; }
-
-    /* Sound notification blink */
-    .new-order-flash {
-      animation: flash 0.5s ease 3;
-    }
-    @keyframes flash {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-
-    /* Bell icon for sound toggle */
-    .sound-toggle {
-      background: none;
-      border: 1px solid var(--card-border);
-      color: var(--text-dim);
-      padding: 6px 10px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    .sound-toggle.active { color: var(--preparing); border-color: var(--preparing); }
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{--bg:#111827;--card:#1f2937;--border:#374151;--text:#f3f4f6;--dim:#9ca3af;--new:#f97316;--prep:#eab308;--ready:#22c55e;--done:#3b82f6;--served:#8b5cf6}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    .top{background:var(--card);padding:14px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+    .top h1{font-size:20px;color:#c9a96e}
+    .top .conn{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dim)}
+    .dot{width:8px;height:8px;border-radius:50%;background:var(--ready)}
+    .dot.off{background:#ef4444}
+    .stats{display:flex;gap:12px;padding:14px 24px;overflow-x:auto}
+    .st{padding:6px 14px;border-radius:16px;font-size:12px;font-weight:600}
+    .st-new{background:rgba(249,115,22,.15);color:var(--new)}
+    .st-prep{background:rgba(234,179,8,.15);color:var(--prep)}
+    .st-ready{background:rgba(34,197,94,.15);color:var(--ready)}
+    .filters{display:flex;gap:6px;padding:0 24px 14px}
+    .fbtn{padding:6px 14px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--dim);font-size:12px;font-weight:600;cursor:pointer}
+    .fbtn.active{background:#c9a96e;color:#111;border-color:#c9a96e}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;padding:0 24px 40px}
+    .ocard{background:var(--card);border:2px solid var(--border);border-radius:10px;overflow:hidden;animation:si .3s}
+    @keyframes si{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+    .ocard.s-new{border-color:var(--new)}
+    .ocard.s-preparing{border-color:var(--prep)}
+    .ocard.s-ready{border-color:var(--ready)}
+    .ocard.s-done,.ocard.s-served{border-color:var(--done);opacity:.5}
+    .oh{padding:10px 14px;display:flex;justify-content:space-between;align-items:center}
+    .ocard.s-new .oh{background:rgba(249,115,22,.08)}
+    .ocard.s-preparing .oh{background:rgba(234,179,8,.08)}
+    .ocard.s-ready .oh{background:rgba(34,197,94,.08)}
+    .oid{font-size:20px;font-weight:800}
+    .otbl{font-size:13px;font-weight:700;padding:3px 10px;border-radius:6px;background:rgba(255,255,255,.08)}
+    .ost{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:3px 8px;border-radius:4px}
+    .s-new .ost{background:var(--new);color:#fff}
+    .s-preparing .ost{background:var(--prep);color:#222}
+    .s-ready .ost{background:var(--ready);color:#fff}
+    .s-done .ost,.s-served .ost{background:var(--done);color:#fff}
+    .otime{font-size:11px;color:var(--dim)}
+    .oi{padding:10px 14px}
+    .oil{display:flex;justify-content:space-between;padding:5px 0;font-size:14px;border-bottom:1px solid rgba(255,255,255,.04)}
+    .oil:last-child{border:none}
+    .oiq{background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-weight:700;font-size:12px;margin-right:6px}
+    .onotes{padding:0 14px 10px;font-size:12px;color:var(--prep);font-style:italic}
+    .oact{padding:0 14px 12px;display:flex;gap:6px}
+    .abtn{flex:1;padding:9px;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.5px}
+    .abtn:active{transform:scale(.97)}
+    .abtn-prep{background:var(--prep);color:#222}
+    .abtn-ready{background:var(--ready);color:#fff}
+    .abtn-served{background:var(--served);color:#fff}
+    .abtn-done{background:var(--done);color:#fff}
+    .empty{text-align:center;padding:60px;color:var(--dim)}
+    .empty .icon{font-size:48px;margin-bottom:12px}
   </style>
 </head>
 <body>
-
-  <div class="header">
-    <div>
-      <h1>Kitchen Display</h1>
-      <div class="connection-status">
-        <div class="status-dot" id="statusDot"></div>
-        <span id="statusText">Connected</span>
-      </div>
-    </div>
-    <div class="stats">
-      <span class="stat-badge stat-new" id="statNew">0 New</span>
-      <span class="stat-badge stat-prep" id="statPrep">0 Preparing</span>
-      <span class="stat-badge stat-ready" id="statReady">0 Ready</span>
-      <button class="sound-toggle active" id="soundToggle" onclick="toggleSound()" title="Toggle notification sound">&#128276;</button>
-    </div>
+<div class="top">
+  <div><h1>JaiDee Kitchen</h1><div class="conn"><div class="dot" id="dot"></div><span id="connTxt">Connected</span></div></div>
+  <div class="stats">
+    <span class="st st-new" id="sNew">0 New</span>
+    <span class="st st-prep" id="sPrep">0 Preparing</span>
+    <span class="st st-ready" id="sReady">0 Ready</span>
   </div>
-
-  <div class="filters">
-    <button class="filter-btn active" onclick="setFilter('active')">Active</button>
-    <button class="filter-btn" onclick="setFilter('all')">All</button>
-    <button class="filter-btn" onclick="setFilter('new')">New</button>
-    <button class="filter-btn" onclick="setFilter('preparing')">Preparing</button>
-    <button class="filter-btn" onclick="setFilter('ready')">Ready</button>
-  </div>
-
-  <div class="orders-grid" id="ordersGrid">
-    <div class="empty-state">
-      <div class="icon">&#127860;</div>
-      <h2>No orders yet</h2>
-      <p>Orders will appear here in real-time</p>
-    </div>
-  </div>
+</div>
+<div class="filters" id="filters">
+  <button class="fbtn active" onclick="sf('active')">Active</button>
+  <button class="fbtn" onclick="sf('all')">All</button>
+  <button class="fbtn" onclick="sf('new')">New</button>
+  <button class="fbtn" onclick="sf('preparing')">Preparing</button>
+  <button class="fbtn" onclick="sf('ready')">Ready</button>
+</div>
+<div class="grid" id="grid"></div>
 
 <script>
-  let orders = [];
-  let filter = "active";
-  let soundEnabled = true;
-  let eventSource = null;
+let orders=[],filter="active";
+const es=new EventSource("/api/kitchen/stream");
+es.onmessage=e=>{const d=JSON.parse(e.data);if(d.type==="init"){orders=d.orders;render()}else if(d.type==="new_order"){orders.unshift(d.order);render();beep()}else if(d.type==="order_updated"){const i=orders.findIndex(o=>o.id===d.order.id);if(i!==-1)orders[i]=d.order;render()}};
+es.onopen=()=>{document.getElementById("dot").classList.remove("off");document.getElementById("connTxt").textContent="Connected"};
+es.onerror=()=>{document.getElementById("dot").classList.add("off");document.getElementById("connTxt").textContent="Reconnecting..."};
 
-  function connectSSE() {
-    eventSource = new EventSource("/api/kitchen/stream");
+function sf(f){filter=f;document.querySelectorAll(".fbtn").forEach(b=>b.classList.toggle("active",b.textContent.toLowerCase()===f||(f==="active"&&b.textContent==="Active")));render()}
+function getF(){if(filter==="active")return orders.filter(o=>!["done","served"].includes(o.status));if(filter==="all")return orders;return orders.filter(o=>o.status===filter)}
+function ago(d){const s=Math.floor((Date.now()-new Date(d))/1e3);if(s<60)return s+"s";if(s<3600)return Math.floor(s/60)+"m";return Math.floor(s/3600)+"h"}
 
-    eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data);
+function render(){
+  const f=getF();
+  const c={new:0,preparing:0,ready:0};orders.forEach(o=>{if(c[o.status]!==undefined)c[o.status]++});
+  document.getElementById("sNew").textContent=c.new+" New";
+  document.getElementById("sPrep").textContent=c.preparing+" Prep";
+  document.getElementById("sReady").textContent=c.ready+" Ready";
+  if(!f.length){document.getElementById("grid").innerHTML=`<div class="empty"><div class="icon">&#127860;</div><h3>No orders</h3></div>`;return}
+  document.getElementById("grid").innerHTML=f.map(o=>`
+    <div class="ocard s-${o.status}"><div class="oh"><div><span class="oid">#${o.id}</span> <span class="otime">${ago(o.createdAt)} ago</span></div><div style="display:flex;gap:6px;align-items:center"><span class="otbl">T${o.tableNumber}</span><span class="ost">${o.status}</span></div></div>
+    <div class="oi">${o.items.map(i=>`<div class="oil"><span><span class="oiq">${i.quantity}x</span>${i.name}</span><span>฿${i.price*i.quantity}</span></div>`).join("")}</div>
+    ${o.notes?`<div class="onotes">Note: ${o.notes}</div>`:''}
+    <div class="oact">
+      ${o.status==="new"?`<button class="abtn abtn-prep" onclick="us(${o.id},'preparing')">Preparing</button>`:''}
+      ${o.status==="preparing"?`<button class="abtn abtn-ready" onclick="us(${o.id},'ready')">Ready</button>`:''}
+      ${o.status==="ready"?`<button class="abtn abtn-served" onclick="us(${o.id},'served')">Served</button>`:''}
+    </div></div>
+  `).join("")}
 
-      if (data.type === "init") {
-        orders = data.orders;
-        renderOrders();
-      } else if (data.type === "new_order") {
-        orders.unshift(data.order);
-        renderOrders();
-        playNotification();
-      } else if (data.type === "order_updated") {
-        const idx = orders.findIndex(o => o.id === data.order.id);
-        if (idx !== -1) orders[idx] = data.order;
-        renderOrders();
-      }
-    };
-
-    eventSource.onopen = () => {
-      document.getElementById("statusDot").classList.remove("disconnected");
-      document.getElementById("statusText").textContent = "Connected";
-    };
-
-    eventSource.onerror = () => {
-      document.getElementById("statusDot").classList.add("disconnected");
-      document.getElementById("statusText").textContent = "Reconnecting...";
-    };
-  }
-
-  connectSSE();
-
-  function setFilter(f) {
-    filter = f;
-    document.querySelectorAll(".filter-btn").forEach(btn => {
-      btn.classList.toggle("active", btn.textContent.toLowerCase() === f || (f === "active" && btn.textContent === "Active"));
-    });
-    renderOrders();
-  }
-
-  function getFilteredOrders() {
-    if (filter === "active") return orders.filter(o => o.status !== "done");
-    if (filter === "all") return orders;
-    return orders.filter(o => o.status === filter);
-  }
-
-  function timeAgo(dateStr) {
-    const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
-    if (diff < 60) return `${diff}s ago`;
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-    return `${Math.floor(diff / 3600)}h ago`;
-  }
-
-  function renderOrders() {
-    const filtered = getFilteredOrders();
-    const grid = document.getElementById("ordersGrid");
-
-    // Update stats
-    const counts = { new: 0, preparing: 0, ready: 0 };
-    orders.forEach(o => { if (counts[o.status] !== undefined) counts[o.status]++; });
-    document.getElementById("statNew").textContent = `${counts.new} New`;
-    document.getElementById("statPrep").textContent = `${counts.preparing} Preparing`;
-    document.getElementById("statReady").textContent = `${counts.ready} Ready`;
-
-    if (filtered.length === 0) {
-      grid.innerHTML = `
-        <div class="empty-state">
-          <div class="icon">&#127860;</div>
-          <h2>No orders</h2>
-          <p>${filter === 'active' ? 'All caught up! No active orders.' : 'No orders match this filter.'}</p>
-        </div>`;
-      return;
-    }
-
-    grid.innerHTML = filtered.map(order => `
-      <div class="order-card status-${order.status}">
-        <div class="order-header">
-          <div>
-            <span class="order-id">#${order.id}</span>
-            <span class="order-time">${timeAgo(order.createdAt)}</span>
-          </div>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <span class="order-table">Table ${order.tableNumber}</span>
-            <span class="status-label">${order.status}</span>
-          </div>
-        </div>
-        <div class="order-items">
-          ${order.items.map(item => `
-            <div class="order-item">
-              <span><span class="item-qty">${item.quantity}x</span>${item.name}</span>
-              <span>$${item.price * item.quantity}</span>
-            </div>
-          `).join("")}
-        </div>
-        ${order.notes ? `<div class="order-notes">${order.notes}</div>` : ''}
-        <div class="order-actions">
-          ${order.status === 'new' ? `<button class="action-btn btn-prepare" onclick="updateStatus(${order.id}, 'preparing')">Start Preparing</button>` : ''}
-          ${order.status === 'preparing' ? `<button class="action-btn btn-ready" onclick="updateStatus(${order.id}, 'ready')">Mark Ready</button>` : ''}
-          ${order.status === 'ready' ? `<button class="action-btn btn-done" onclick="updateStatus(${order.id}, 'done')">Complete</button>` : ''}
-        </div>
-      </div>
-    `).join("");
-  }
-
-  async function updateStatus(id, status) {
-    await fetch(`/api/orders/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status })
-    });
-  }
-
-  function playNotification() {
-    if (!soundEnabled) return;
-    try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.frequency.value = 800;
-      osc.type = "sine";
-      gain.gain.value = 0.3;
-      osc.start();
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
-      osc.stop(ctx.currentTime + 0.5);
-      // Second beep
-      setTimeout(() => {
-        const osc2 = ctx.createOscillator();
-        const gain2 = ctx.createGain();
-        osc2.connect(gain2);
-        gain2.connect(ctx.destination);
-        osc2.frequency.value = 1000;
-        osc2.type = "sine";
-        gain2.gain.value = 0.3;
-        osc2.start();
-        gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
-        osc2.stop(ctx.currentTime + 0.5);
-      }, 200);
-    } catch(e) {}
-  }
-
-  function toggleSound() {
-    soundEnabled = !soundEnabled;
-    const btn = document.getElementById("soundToggle");
-    btn.classList.toggle("active", soundEnabled);
-    btn.innerHTML = soundEnabled ? "&#128276;" : "&#128277;";
-  }
-
-  // Refresh time displays
-  setInterval(renderOrders, 30000);
+async function us(id,s){await fetch(`/api/orders/${id}`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({status:s})})}
+function beep(){try{const c=new(window.AudioContext||window.webkitAudioContext)();const o=c.createOscillator();const g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=800;g.gain.value=.25;o.start();g.gain.exponentialRampToValueAtTime(.01,c.currentTime+.4);o.stop(c.currentTime+.4);setTimeout(()=>{const o2=c.createOscillator();const g2=c.createGain();o2.connect(g2);g2.connect(c.destination);o2.frequency.value=1e3;g2.gain.value=.25;o2.start();g2.gain.exponentialRampToValueAtTime(.01,c.currentTime+.4);o2.stop(c.currentTime+.4)},200)}catch(e){}}
+setInterval(render,30000);
 </script>
 </body>
 </html>

@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - JaiDee Resort</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{--bg:#f8f9fb;--card:#fff;--dark:#1a1a1a;--sand:#c9a96e;--green:#22c55e;--blue:#3b82f6;--red:#ef4444;--orange:#f59e0b;--purple:#8b5cf6;--border:#e5e7eb;--text:#1f2937;--dim:#9ca3af}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text)}
+
+    /* Sidebar */
+    .layout{display:flex;min-height:100vh}
+    .sidebar{width:220px;background:var(--dark);color:white;padding:20px 0;flex-shrink:0;position:sticky;top:0;height:100vh}
+    .sb-logo{font-size:18px;font-weight:700;color:var(--sand);padding:0 20px 20px;border-bottom:1px solid rgba(255,255,255,.1);letter-spacing:1px}
+    .sb-nav{padding:16px 0}
+    .sb-item{display:flex;align-items:center;gap:10px;padding:10px 20px;color:rgba(255,255,255,.55);font-size:13px;font-weight:500;cursor:pointer;transition:.2s;border-left:3px solid transparent}
+    .sb-item:hover{color:rgba(255,255,255,.8);background:rgba(255,255,255,.04)}
+    .sb-item.active{color:var(--sand);border-left-color:var(--sand);background:rgba(201,169,110,.06)}
+    .sb-icon{font-size:18px;width:24px;text-align:center}
+
+    .main{flex:1;padding:24px;max-width:1200px}
+
+    /* Tabs (pages) */
+    .page{display:none}
+    .page.active{display:block}
+
+    /* Cards */
+    .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+    .stat-card{background:var(--card);border-radius:10px;padding:18px;border:1px solid var(--border)}
+    .stat-card .label{font-size:12px;color:var(--dim);font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+    .stat-card .val{font-size:28px;font-weight:700;margin-top:4px}
+    .stat-card .sub{font-size:11px;color:var(--dim);margin-top:2px}
+    .stat-card.gold .val{color:var(--sand)}
+    .stat-card.green .val{color:var(--green)}
+    .stat-card.blue .val{color:var(--blue)}
+    .stat-card.purple .val{color:var(--purple)}
+
+    /* Chart area */
+    .chart-row{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:24px}
+    .chart-card{background:var(--card);border-radius:10px;padding:18px;border:1px solid var(--border)}
+    .chart-card h3{font-size:14px;font-weight:600;margin-bottom:14px;color:var(--dim)}
+    .bar-chart{display:flex;align-items:flex-end;gap:8px;height:140px;padding-top:10px}
+    .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+    .bar{width:100%;background:var(--sand);border-radius:4px 4px 0 0;min-height:2px;transition:.4s}
+    .bar-label{font-size:10px;color:var(--dim)}
+    .bar-val{font-size:10px;font-weight:600;color:var(--text)}
+    /* Top items list */
+    .top-item{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f3f4f6;font-size:13px}
+    .top-item:last-child{border:none}
+    .top-item .ti-name{font-weight:500}
+    .top-item .ti-qty{color:var(--dim);font-size:12px}
+    .top-item .ti-rev{font-weight:600;color:var(--sand)}
+    /* Category pills */
+    .cat-pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .cat-pill{padding:6px 12px;border-radius:16px;font-size:12px;font-weight:600}
+    .cat-pill.starters{background:#fef3c7;color:#92400e}
+    .cat-pill.mains{background:#dcfce7;color:#166534}
+    .cat-pill.drinks{background:#dbeafe;color:#1e40af}
+    .cat-pill.desserts{background:#fce7f3;color:#9d174d}
+
+    /* Orders table */
+    .ctrl-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+    .ctrl-row input,.ctrl-row select{padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit;background:white}
+    .ctrl-btn{padding:7px 14px;border:1px solid var(--border);border-radius:6px;background:white;font-size:12px;cursor:pointer;font-weight:500}
+    .ctrl-btn.active{background:var(--dark);color:white;border-color:var(--dark)}
+    table{width:100%;border-collapse:collapse;background:var(--card);border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+    th{background:#f9fafb;padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+    td{padding:12px 14px;font-size:13px;border-bottom:1px solid #f3f4f6;vertical-align:middle}
+    tr:last-child td{border:none}
+    tr:hover td{background:#fafbfc}
+    .badge{display:inline-block;padding:3px 8px;border-radius:10px;font-size:10px;font-weight:600;text-transform:uppercase}
+    .badge.new{background:#ffedd5;color:#c2410c}
+    .badge.preparing{background:#fef9c3;color:#a16207}
+    .badge.ready{background:#dcfce7;color:#166534}
+    .badge.done,.badge.served{background:#dbeafe;color:#1e40af}
+    .badge.cancelled{background:#fee2e2;color:#991b1b}
+    .act-btn{padding:5px 10px;border:1px solid var(--border);border-radius:5px;background:white;font-size:11px;cursor:pointer;font-weight:500;margin-right:3px}
+    .act-btn:hover{background:#f3f4f6}
+    .act-btn.c-green{color:var(--green);border-color:var(--green)}
+    .act-btn.c-blue{color:var(--blue);border-color:var(--blue)}
+    .act-btn.c-purple{color:var(--purple);border-color:var(--purple)}
+    .act-btn.c-red{color:var(--red);border-color:var(--red)}
+
+    /* Menu editor */
+    .menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+    .mi-card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;position:relative}
+    .mi-card.unavailable{opacity:.5}
+    .mi-img{width:100%;height:120px;object-fit:cover;background:#f0f0f0}
+    .mi-body{padding:14px}
+    .mi-body h4{font-size:15px;margin-bottom:2px}
+    .mi-body .mi-th{font-size:12px;color:var(--sand)}
+    .mi-body .mi-desc{font-size:12px;color:var(--dim);margin-top:4px}
+    .mi-body .mi-price{font-size:18px;font-weight:700;color:var(--blue);margin-top:6px}
+    .mi-body .mi-cat{font-size:10px;background:#f3f4f6;padding:2px 8px;border-radius:8px;color:var(--dim);display:inline-block;margin-top:4px}
+    .mi-actions{display:flex;gap:6px;margin-top:10px}
+    .mi-btn{padding:6px 12px;border:1px solid var(--border);border-radius:5px;font-size:11px;cursor:pointer;font-weight:500;background:white}
+    .mi-btn.edit{color:var(--blue);border-color:var(--blue)}
+    .mi-btn.toggle{color:var(--orange);border-color:var(--orange)}
+    .mi-btn.delete{color:var(--red);border-color:var(--red)}
+    .mi-btn:hover{opacity:.8}
+
+    /* Modal form */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:.2s}
+    .modal-overlay.show{opacity:1;pointer-events:all}
+    .modal-form{background:white;border-radius:12px;padding:28px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto}
+    .modal-form h3{font-size:18px;margin-bottom:16px}
+    .fg{margin-bottom:12px}
+    .fg label{font-size:12px;font-weight:600;color:var(--dim);display:block;margin-bottom:4px}
+    .fg input,.fg select,.fg textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:6px;font-size:14px;font-family:inherit}
+    .fg textarea{resize:vertical}
+    .fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--sand)}
+    .fg-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .modal-btns{display:flex;gap:10px;margin-top:16px}
+    .mbtn{flex:1;padding:11px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}
+    .mbtn.save{background:var(--green);color:white}
+    .mbtn.cancel{background:#f3f4f6;color:var(--dim)}
+    .add-btn{padding:10px 20px;background:var(--sand);color:var(--dark);border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:16px}
+
+    @media(max-width:768px){
+      .sidebar{display:none}
+      .chart-row{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sb-logo">JaiDee Admin</div>
+    <div class="sb-nav">
+      <div class="sb-item active" onclick="showPage('dashboard')"><span class="sb-icon">&#128202;</span>Dashboard</div>
+      <div class="sb-item" onclick="showPage('orders')"><span class="sb-icon">&#128203;</span>Orders</div>
+      <div class="sb-item" onclick="showPage('menu-editor')"><span class="sb-icon">&#127860;</span>Menu Editor</div>
+      <div class="sb-item" onclick="window.open('/kitchen','_blank')"><span class="sb-icon">&#127859;</span>Kitchen View</div>
+      <div class="sb-item" onclick="window.open('/','_blank')"><span class="sb-icon">&#127968;</span>Website</div>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="pg-dashboard">
+      <h2 style="margin-bottom:20px">Dashboard</h2>
+      <div class="stats-row">
+        <div class="stat-card gold"><div class="label">Today's Revenue</div><div class="val" id="dRev">฿0</div><div class="sub" id="dOrd">0 orders</div></div>
+        <div class="stat-card green"><div class="label">Completed</div><div class="val" id="dComp">0</div><div class="sub">orders done</div></div>
+        <div class="stat-card blue"><div class="label">Avg Order Value</div><div class="val" id="dAvg">฿0</div><div class="sub">per order</div></div>
+        <div class="stat-card purple"><div class="label">All-Time Revenue</div><div class="val" id="dAll">฿0</div><div class="sub" id="dAllOrd">0 orders total</div></div>
+      </div>
+
+      <div class="chart-row">
+        <div class="chart-card">
+          <h3>Weekly Revenue (Last 7 Days)</h3>
+          <div class="bar-chart" id="barChart"></div>
+        </div>
+        <div class="chart-card">
+          <h3>Top Items Today</h3>
+          <div id="topItems"></div>
+        </div>
+      </div>
+      <div class="chart-row">
+        <div class="chart-card">
+          <h3>Revenue by Category</h3>
+          <div class="cat-pills" id="catBreak"></div>
+        </div>
+        <div class="chart-card">
+          <h3>Quick Links</h3>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+            <button class="ctrl-btn" onclick="showPage('orders')" style="text-align:left">&#128203; Manage Orders</button>
+            <button class="ctrl-btn" onclick="showPage('menu-editor')" style="text-align:left">&#127860; Edit Menu</button>
+            <button class="ctrl-btn" onclick="window.open('/menu','_blank')" style="text-align:left">&#128241; Customer Menu</button>
+            <button class="ctrl-btn" onclick="window.open('/kitchen','_blank')" style="text-align:left">&#127859; Kitchen Display</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ORDERS -->
+    <div class="page" id="pg-orders">
+      <h2 style="margin-bottom:20px">Orders</h2>
+      <div class="ctrl-row">
+        <input type="date" id="orderDate" onchange="renderOrders()">
+        <div class="ctrl-btn active" onclick="setOF('all')">All</div>
+        <div class="ctrl-btn" onclick="setOF('new')">New</div>
+        <div class="ctrl-btn" onclick="setOF('preparing')">Preparing</div>
+        <div class="ctrl-btn" onclick="setOF('ready')">Ready</div>
+        <div class="ctrl-btn" onclick="setOF('served')">Served</div>
+        <div class="ctrl-btn" onclick="setOF('cancelled')">Cancelled</div>
+      </div>
+      <table>
+        <thead><tr><th>ID</th><th>Time</th><th>Table</th><th>Items</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="orderBody"></tbody>
+      </table>
+    </div>
+
+    <!-- MENU EDITOR -->
+    <div class="page" id="pg-menu-editor">
+      <h2 style="margin-bottom:20px">Menu Editor</h2>
+      <button class="add-btn" onclick="openMenuModal()">+ Add Menu Item</button>
+      <div class="menu-grid" id="menuGrid"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Menu Item Modal -->
+<div class="modal-overlay" id="menuModal">
+  <div class="modal-form">
+    <h3 id="modalTitle">Add Menu Item</h3>
+    <input type="hidden" id="editId">
+    <div class="fg"><label>Name (English) *</label><input id="f_name"></div>
+    <div class="fg-row">
+      <div class="fg"><label>Thai Name</label><input id="f_nameTh"></div>
+      <div class="fg"><label>Chinese Name</label><input id="f_nameZh"></div>
+    </div>
+    <div class="fg-row">
+      <div class="fg"><label>Russian Name</label><input id="f_nameRu"></div>
+      <div class="fg"><label>Korean Name</label><input id="f_nameKo"></div>
+    </div>
+    <div class="fg"><label>Japanese Name</label><input id="f_nameJa"></div>
+    <div class="fg-row">
+      <div class="fg"><label>Price (฿) *</label><input type="number" id="f_price"></div>
+      <div class="fg"><label>Category *</label><select id="f_cat"><option value="starters">Starters</option><option value="mains">Mains</option><option value="drinks">Drinks</option><option value="desserts">Desserts</option></select></div>
+    </div>
+    <div class="fg"><label>Description</label><textarea id="f_desc" rows="2"></textarea></div>
+    <div class="fg"><label>Image URL</label><input id="f_image" placeholder="/images/filename.jpg"></div>
+    <div class="modal-btns">
+      <button class="mbtn cancel" onclick="closeMenuModal()">Cancel</button>
+      <button class="mbtn save" onclick="saveMenuItem()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let allOrders=[],allMenu=[],orderFilter="all";
+const today=new Date().toISOString().split("T")[0];
+document.getElementById("orderDate").value=today;
+
+// SSE
+const es=new EventSource("/api/admin/stream");
+es.onmessage=e=>{const d=JSON.parse(e.data);
+  if(d.type==="init"){allOrders=d.orders;allMenu=d.menu;renderAll()}
+  else if(d.type==="new_order"){allOrders.push(d.order);renderAll()}
+  else if(d.type==="order_updated"){const i=allOrders.findIndex(o=>o.id===d.order.id);if(i!==-1)allOrders[i]=d.order;renderAll()}
+  else if(d.type==="menu_updated"){allMenu=d.menu;renderMenuEditor()}
+};
+
+function showPage(id){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById("pg-"+id).classList.add("active");
+  document.querySelectorAll(".sb-item").forEach(s=>s.classList.remove("active"));
+  document.querySelectorAll(".sb-item").forEach(s=>{if(s.textContent.toLowerCase().includes(id.split("-")[0]))s.classList.add("active")});
+  if(id==="dashboard")loadStats();
+}
+
+function renderAll(){renderOrders();renderMenuEditor();loadStats()}
+
+// ── Dashboard ──
+async function loadStats(){
+  const r=await fetch("/api/stats");const s=await r.json();
+  document.getElementById("dRev").textContent="฿"+s.today.revenue.toLocaleString();
+  document.getElementById("dOrd").textContent=s.today.orders+" orders";
+  document.getElementById("dComp").textContent=s.today.completed;
+  document.getElementById("dAvg").textContent="฿"+s.today.avgOrderValue;
+  document.getElementById("dAll").textContent="฿"+s.allTime.revenue.toLocaleString();
+  document.getElementById("dAllOrd").textContent=s.allTime.orders+" orders total";
+
+  // Bar chart
+  const maxR=Math.max(...s.weeklyRevenue.map(d=>d.revenue),1);
+  document.getElementById("barChart").innerHTML=s.weeklyRevenue.map(d=>{
+    const h=Math.max(2,(d.revenue/maxR)*120);
+    return`<div class="bar-col"><div class="bar-val">${d.revenue>0?'฿'+d.revenue:''}</div><div class="bar" style="height:${h}px"></div><div class="bar-label">${d.label}</div></div>`;
+  }).join("");
+
+  // Top items
+  document.getElementById("topItems").innerHTML=s.topItems.length?s.topItems.map(i=>`<div class="top-item"><div><span class="ti-name">${i.name}</span> <span class="ti-qty">x${i.qty}</span></div><span class="ti-rev">฿${i.revenue}</span></div>`).join(""):'<div style="color:#ccc;font-size:13px;padding:20px 0">No orders yet today</div>';
+
+  // Category breakdown
+  const cats=s.catRevenue;
+  document.getElementById("catBreak").innerHTML=Object.entries(cats).map(([c,v])=>`<span class="cat-pill ${c}">${c}: ฿${v}</span>`).join("")||'<span style="color:#ccc;font-size:13px">No data yet</span>';
+}
+
+// ── Orders ──
+function setOF(f){orderFilter=f;document.querySelectorAll(".ctrl-row .ctrl-btn").forEach(b=>b.classList.toggle("active",b.textContent.toLowerCase()===f||(f==="all"&&b.textContent==="All")));renderOrders()}
+
+function renderOrders(){
+  const date=document.getElementById("orderDate").value;
+  let list=allOrders.filter(o=>o.createdAt.startsWith(date));
+  if(orderFilter!=="all")list=list.filter(o=>o.status===orderFilter);
+  list.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+
+  if(!list.length){document.getElementById("orderBody").innerHTML=`<tr><td colspan="7" style="text-align:center;color:#ccc;padding:40px">No orders</td></tr>`;return}
+  document.getElementById("orderBody").innerHTML=list.map(o=>{
+    const t=new Date(o.createdAt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    return`<tr>
+      <td><strong>#${o.id}</strong></td>
+      <td>${t}</td>
+      <td>T${o.tableNumber}</td>
+      <td>${o.items.map(i=>`${i.quantity}x ${i.name}`).join(", ")}</td>
+      <td><strong>฿${o.total}</strong></td>
+      <td><span class="badge ${o.status}">${o.status}</span></td>
+      <td>
+        ${o.status==="new"?`<button class="act-btn c-green" onclick="updO(${o.id},'preparing')">Prep</button>`:''}
+        ${o.status==="preparing"?`<button class="act-btn c-green" onclick="updO(${o.id},'ready')">Ready</button>`:''}
+        ${o.status==="ready"?`<button class="act-btn c-purple" onclick="updO(${o.id},'served')">Served</button>`:''}
+        ${!["done","served","cancelled"].includes(o.status)?`<button class="act-btn c-red" onclick="updO(${o.id},'cancelled')">Cancel</button>`:''}
+      </td>
+    </tr>`;
+  }).join("");
+}
+
+async function updO(id,s){await fetch(`/api/orders/${id}`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({status:s})})}
+
+// ── Menu Editor ──
+function renderMenuEditor(){
+  document.getElementById("menuGrid").innerHTML=allMenu.map(m=>`
+    <div class="mi-card ${m.available?'':'unavailable'}">
+      ${m.image?`<img src="${m.image}" class="mi-img">`:`<div class="mi-img" style="display:flex;align-items:center;justify-content:center;color:#ccc;font-size:32px">&#127860;</div>`}
+      <div class="mi-body">
+        <h4>${m.name}</h4>
+        <div class="mi-th">${m.nameTh||''}</div>
+        <div class="mi-desc">${m.description||''}</div>
+        <div class="mi-price">฿${m.price}</div>
+        <span class="mi-cat">${m.category}</span>
+        ${!m.available?'<span class="mi-cat" style="background:#fee2e2;color:#991b1b;margin-left:4px">UNAVAILABLE</span>':''}
+        <div class="mi-actions">
+          <button class="mi-btn edit" onclick='editItem(${JSON.stringify(m).replace(/'/g,"&#39;")})'>Edit</button>
+          <button class="mi-btn toggle" onclick="toggleItem(${m.id},${!m.available})">${m.available?'Disable':'Enable'}</button>
+          <button class="mi-btn delete" onclick="deleteItem(${m.id})">Delete</button>
+        </div>
+      </div>
+    </div>
+  `).join("");
+}
+
+function openMenuModal(item){
+  document.getElementById("modalTitle").textContent=item?"Edit Menu Item":"Add Menu Item";
+  document.getElementById("editId").value=item?item.id:"";
+  document.getElementById("f_name").value=item?item.name:"";
+  document.getElementById("f_nameTh").value=item?item.nameTh:"";
+  document.getElementById("f_nameZh").value=item?item.nameZh:"";
+  document.getElementById("f_nameRu").value=item?item.nameRu:"";
+  document.getElementById("f_nameKo").value=item?item.nameKo:"";
+  document.getElementById("f_nameJa").value=item?item.nameJa:"";
+  document.getElementById("f_price").value=item?item.price:"";
+  document.getElementById("f_cat").value=item?item.category:"mains";
+  document.getElementById("f_desc").value=item?item.description:"";
+  document.getElementById("f_image").value=item?item.image:"";
+  document.getElementById("menuModal").classList.add("show");
+}
+function closeMenuModal(){document.getElementById("menuModal").classList.remove("show")}
+function editItem(m){openMenuModal(m)}
+
+async function saveMenuItem(){
+  const id=document.getElementById("editId").value;
+  const body={
+    name:document.getElementById("f_name").value,
+    nameTh:document.getElementById("f_nameTh").value,
+    nameZh:document.getElementById("f_nameZh").value,
+    nameRu:document.getElementById("f_nameRu").value,
+    nameKo:document.getElementById("f_nameKo").value,
+    nameJa:document.getElementById("f_nameJa").value,
+    price:parseInt(document.getElementById("f_price").value)||0,
+    category:document.getElementById("f_cat").value,
+    description:document.getElementById("f_desc").value,
+    image:document.getElementById("f_image").value,
+  };
+  if(!body.name||!body.price){alert("Name and price are required");return}
+  if(id){
+    await fetch(`/api/menu/${id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  }else{
+    await fetch("/api/menu",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  }
+  closeMenuModal();
+  // Refresh
+  const r=await fetch("/api/menu/all");allMenu=await r.json();renderMenuEditor();
+}
+
+async function toggleItem(id,avail){
+  await fetch(`/api/menu/${id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({available:avail})});
+  const r=await fetch("/api/menu/all");allMenu=await r.json();renderMenuEditor();
+}
+
+async function deleteItem(id){
+  if(!confirm("Delete this menu item?"))return;
+  await fetch(`/api/menu/${id}`,{method:"DELETE"});
+  const r=await fetch("/api/menu/all");allMenu=await r.json();renderMenuEditor();
+}
+
+// Close modal on bg click
+document.getElementById("menuModal").addEventListener("click",function(e){if(e.target===this)closeMenuModal()});
+
+// Initial stats load
+setTimeout(loadStats,500);
+</script>
+</body>
+</html>
