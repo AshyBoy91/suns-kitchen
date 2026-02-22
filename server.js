@@ -56,6 +56,15 @@ let staffIdCounter = 9;
 let payLogs = [];
 let payLogIdCounter = 1;
 
+// Rooms
+let rooms = [
+  { id: 1, name: "Deluxe Bungalow", nameTh: "บังกะโลดีลักซ์", description: "Spacious wooden bungalow with king bed, private veranda, garden view and outdoor rain shower. Traditional Thai decor with modern amenities.", descriptionTh: "บังกะโลไม้กว้างขวางพร้อมเตียงคิงไซส์ ระเบียงส่วนตัว วิวสวน และฝักบัวกลางแจ้ง ตกแต่งสไตล์ไทยพร้อมสิ่งอำนวยความสะดวกทันสมัย", price: 2500, image: "/images/8.jpg", bookingUrl: "https://www.booking.com", amenities: "WiFi, Air-con, Mini Bar, Rain Shower, Garden View", amenitiesTh: "WiFi, แอร์, มินิบาร์, ฝักบัวสายฝน, วิวสวน", available: true },
+  { id: 2, name: "Family Suite", nameTh: "ห้องสวีทครอบครัว", description: "Two-bedroom suite ideal for families. Living area, kitchenette, and a large balcony overlooking the pool. Sleeps up to 4 guests.", descriptionTh: "ห้องสวีท 2 ห้องนอน เหมาะสำหรับครอบครัว พร้อมห้องนั่งเล่น ครัวเล็ก และระเบียงขนาดใหญ่มองเห็นสระว่ายน้ำ รองรับ 4 ท่าน", price: 4500, image: "/images/94.jpg", bookingUrl: "https://www.booking.com", amenities: "WiFi, Air-con, Kitchen, Pool View, 2 Bedrooms", amenitiesTh: "WiFi, แอร์, ครัว, วิวสระ, 2 ห้องนอน", available: true },
+  { id: 3, name: "Beachfront Villa", nameTh: "วิลล่าริมหาด", description: "Premium villa with direct beach access, private plunge pool, outdoor bathtub, and panoramic ocean views. The ultimate luxury escape.", descriptionTh: "วิลล่าพรีเมียมพร้อมทางลงหาดส่วนตัว สระจากุซซี่ อ่างอาบน้ำกลางแจ้ง และวิวทะเลพาโนรามา ประสบการณ์หรูสุดพิเศษ", price: 8500, image: "/images/sds.jpg", bookingUrl: "https://www.booking.com", amenities: "WiFi, Air-con, Private Pool, Beach Access, Ocean View, Bathtub", amenitiesTh: "WiFi, แอร์, สระส่วนตัว, ทางลงหาด, วิวทะเล, อ่างอาบน้ำ", available: true },
+  { id: 4, name: "Standard Room", nameTh: "ห้องสแตนดาร์ด", description: "Comfortable room with queen bed, modern bathroom, and access to all resort facilities. Perfect for couples or solo travelers.", descriptionTh: "ห้องพักสบายพร้อมเตียงควีนไซส์ ห้องน้ำทันสมัย เข้าถึงสิ่งอำนวยความสะดวกทุกอย่างของรีสอร์ท เหมาะสำหรับคู่รักหรือนักเดินทางคนเดียว", price: 1500, image: "/images/a3.jpg", bookingUrl: "https://www.booking.com", amenities: "WiFi, Air-con, TV, Hot Water", amenitiesTh: "WiFi, แอร์, ทีวี, น้ำร้อน", available: true },
+];
+let roomIdCounter = 5;
+
 // SSE clients
 let kitchenClients = [];
 let adminClients = [];
@@ -268,6 +277,43 @@ app.delete("/api/paylogs/:id", (req, res) => {
   res.json({ success: true });
 });
 
+// ─── Rooms ───
+app.get("/api/rooms", (req, res) => res.json(rooms.filter(r => r.available)));
+app.get("/api/rooms/all", (req, res) => res.json(rooms));
+
+app.post("/api/rooms", (req, res) => {
+  const room = {
+    id: roomIdCounter++,
+    name: req.body.name || "",
+    nameTh: req.body.nameTh || "",
+    description: req.body.description || "",
+    descriptionTh: req.body.descriptionTh || "",
+    price: req.body.price || 0,
+    image: req.body.image || "",
+    bookingUrl: req.body.bookingUrl || "",
+    amenities: req.body.amenities || "",
+    amenitiesTh: req.body.amenitiesTh || "",
+    available: true,
+  };
+  rooms.push(room);
+  notifyAdmin({ type: "rooms_updated", rooms });
+  res.status(201).json(room);
+});
+
+app.put("/api/rooms/:id", (req, res) => {
+  const room = rooms.find(r => r.id === parseInt(req.params.id));
+  if (!room) return res.status(404).json({ error: "Not found" });
+  Object.assign(room, req.body, { id: room.id });
+  notifyAdmin({ type: "rooms_updated", rooms });
+  res.json(room);
+});
+
+app.delete("/api/rooms/:id", (req, res) => {
+  rooms = rooms.filter(r => r.id !== parseInt(req.params.id));
+  notifyAdmin({ type: "rooms_updated", rooms });
+  res.json({ success: true });
+});
+
 // Financial summary
 app.get("/api/financials", (req, res) => {
   const { month } = req.query;
@@ -318,7 +364,7 @@ app.get("/api/admin/stream", (req, res) => {
   res.writeHead(200, { "Content-Type": "text/event-stream", "Cache-Control": "no-cache", Connection: "keep-alive" });
   const clientId = Date.now();
   adminClients.push({ id: clientId, res });
-  res.write(`data: ${JSON.stringify({ type: "init", orders, menu: menuItems })}\n\n`);
+  res.write(`data: ${JSON.stringify({ type: "init", orders, menu: menuItems, rooms })}\n\n`);
   req.on("close", () => { adminClients = adminClients.filter(c => c.id !== clientId); });
 });
 
@@ -327,6 +373,7 @@ app.get("/", (req, res) => res.sendFile(path.join(__dirname, "public", "index.ht
 app.get("/menu", (req, res) => res.sendFile(path.join(__dirname, "public", "menu.html")));
 app.get("/kitchen", (req, res) => res.sendFile(path.join(__dirname, "public", "kitchen.html")));
 app.get("/admin", (req, res) => res.sendFile(path.join(__dirname, "public", "admin.html")));
+app.get("/rooms", (req, res) => res.sendFile(path.join(__dirname, "public", "rooms.html")));
 
 app.listen(PORT, () => {
   console.log(`JaiDee Resort server running on http://localhost:${PORT}`);
@@ -334,4 +381,5 @@ app.listen(PORT, () => {
   console.log(`Menu:     http://localhost:${PORT}/menu`);
   console.log(`Kitchen:  http://localhost:${PORT}/kitchen`);
   console.log(`Admin:    http://localhost:${PORT}/admin`);
+  console.log(`Rooms:    http://localhost:${PORT}/rooms`);
 });

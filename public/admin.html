@@ -13,7 +13,10 @@
     /* Sidebar */
     .layout{display:flex;min-height:100vh}
     .sidebar{width:220px;background:var(--dark);color:white;padding:20px 0;flex-shrink:0;position:sticky;top:0;height:100vh}
-    .sb-logo{font-size:18px;font-weight:700;color:var(--sand);padding:0 20px 20px;border-bottom:1px solid rgba(255,255,255,.1);letter-spacing:1px}
+    .sb-header{display:flex;justify-content:space-between;align-items:center;padding:0 20px 20px;border-bottom:1px solid rgba(255,255,255,.1)}
+    .sb-logo{font-size:18px;font-weight:700;color:var(--sand);letter-spacing:1px}
+    .lang-toggle{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:var(--sand);padding:4px 10px;border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:1px;transition:.2s}
+    .lang-toggle:hover{background:rgba(201,169,110,.2);border-color:var(--sand)}
     .sb-nav{padding:16px 0}
     .sb-item{display:flex;align-items:center;gap:10px;padding:10px 20px;color:rgba(255,255,255,.55);font-size:13px;font-weight:500;cursor:pointer;transition:.2s;border-left:3px solid transparent}
     .sb-item:hover{color:rgba(255,255,255,.8);background:rgba(255,255,255,.04)}
@@ -131,6 +134,11 @@
     .pl-row .positive{color:var(--green)}
     .pl-row .negative{color:var(--red)}
 
+    /* Room availability toggle */
+    .room-avail{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;padding:4px 10px;border-radius:8px;cursor:pointer;border:none}
+    .room-avail.on{background:#dcfce7;color:#166534}
+    .room-avail.off{background:#fee2e2;color:#991b1b}
+
     @media print{
       .sidebar,.top,.filters,.ctrl-row{display:none!important}
       .main{padding:0;max-width:100%}
@@ -149,16 +157,20 @@
 
   <!-- Sidebar -->
   <div class="sidebar">
-    <div class="sb-logo">JaiDee Admin</div>
+    <div class="sb-header">
+      <div class="sb-logo">JaiDee Admin</div>
+      <button class="lang-toggle" onclick="toggleAdminLang()" id="langToggleBtn">TH</button>
+    </div>
     <div class="sb-nav">
-      <div class="sb-item active" onclick="showPage('dashboard')"><span class="sb-icon">&#128202;</span>Dashboard</div>
-      <div class="sb-item" onclick="showPage('orders')"><span class="sb-icon">&#128203;</span>Orders</div>
-      <div class="sb-item" onclick="showPage('menu-editor')"><span class="sb-icon">&#127860;</span>Menu Editor</div>
-      <div class="sb-item" onclick="showPage('qr-codes')"><span class="sb-icon">&#128242;</span>QR Codes</div>
-      <div class="sb-item" onclick="showPage('financials')"><span class="sb-icon">&#128176;</span>Financials</div>
-      <div class="sb-item" onclick="showPage('staff')"><span class="sb-icon">&#128101;</span>Staff & Payroll</div>
-      <div class="sb-item" onclick="window.open('/kitchen','_blank')"><span class="sb-icon">&#127859;</span>Kitchen View</div>
-      <div class="sb-item" onclick="window.open('/','_blank')"><span class="sb-icon">&#127968;</span>Website</div>
+      <div class="sb-item active" data-page="dashboard" onclick="showPage('dashboard')"><span class="sb-icon">&#128202;</span><span data-i18n="sb_dashboard">Dashboard</span></div>
+      <div class="sb-item" data-page="orders" onclick="showPage('orders')"><span class="sb-icon">&#128203;</span><span data-i18n="sb_orders">Orders</span></div>
+      <div class="sb-item" data-page="menu-editor" onclick="showPage('menu-editor')"><span class="sb-icon">&#127860;</span><span data-i18n="sb_menu">Menu Editor</span></div>
+      <div class="sb-item" data-page="rooms" onclick="showPage('rooms')"><span class="sb-icon">&#127968;</span><span data-i18n="sb_rooms">Rooms</span></div>
+      <div class="sb-item" data-page="qr-codes" onclick="showPage('qr-codes')"><span class="sb-icon">&#128242;</span><span data-i18n="sb_qr">QR Codes</span></div>
+      <div class="sb-item" data-page="financials" onclick="showPage('financials')"><span class="sb-icon">&#128176;</span><span data-i18n="sb_financials">Financials</span></div>
+      <div class="sb-item" data-page="staff" onclick="showPage('staff')"><span class="sb-icon">&#128101;</span><span data-i18n="sb_staff">Staff & Payroll</span></div>
+      <div class="sb-item" onclick="window.open('/kitchen','_blank')"><span class="sb-icon">&#127859;</span><span data-i18n="sb_kitchen">Kitchen View</span></div>
+      <div class="sb-item" onclick="window.open('/','_blank')"><span class="sb-icon">&#127758;</span><span data-i18n="sb_website">Website</span></div>
     </div>
   </div>
 
@@ -166,36 +178,36 @@
 
     <!-- DASHBOARD -->
     <div class="page active" id="pg-dashboard">
-      <h2 style="margin-bottom:20px">Dashboard</h2>
+      <h2 style="margin-bottom:20px" data-i18n="dash_title">Dashboard</h2>
       <div class="stats-row">
-        <div class="stat-card gold"><div class="label">Today's Revenue</div><div class="val" id="dRev">฿0</div><div class="sub" id="dOrd">0 orders</div></div>
-        <div class="stat-card green"><div class="label">Completed</div><div class="val" id="dComp">0</div><div class="sub">orders done</div></div>
-        <div class="stat-card blue"><div class="label">Avg Order Value</div><div class="val" id="dAvg">฿0</div><div class="sub">per order</div></div>
-        <div class="stat-card purple"><div class="label">All-Time Revenue</div><div class="val" id="dAll">฿0</div><div class="sub" id="dAllOrd">0 orders total</div></div>
+        <div class="stat-card gold"><div class="label" data-i18n="dash_today_rev">Today's Revenue</div><div class="val" id="dRev">฿0</div><div class="sub" id="dOrd">0 orders</div></div>
+        <div class="stat-card green"><div class="label" data-i18n="dash_completed">Completed</div><div class="val" id="dComp">0</div><div class="sub" data-i18n="dash_orders_done">orders done</div></div>
+        <div class="stat-card blue"><div class="label" data-i18n="dash_avg">Avg Order Value</div><div class="val" id="dAvg">฿0</div><div class="sub" data-i18n="dash_per_order">per order</div></div>
+        <div class="stat-card purple"><div class="label" data-i18n="dash_alltime">All-Time Revenue</div><div class="val" id="dAll">฿0</div><div class="sub" id="dAllOrd">0 orders total</div></div>
       </div>
 
       <div class="chart-row">
         <div class="chart-card">
-          <h3>Weekly Revenue (Last 7 Days)</h3>
+          <h3 data-i18n="dash_weekly">Weekly Revenue (Last 7 Days)</h3>
           <div class="bar-chart" id="barChart"></div>
         </div>
         <div class="chart-card">
-          <h3>Top Items Today</h3>
+          <h3 data-i18n="dash_top">Top Items Today</h3>
           <div id="topItems"></div>
         </div>
       </div>
       <div class="chart-row">
         <div class="chart-card">
-          <h3>Revenue by Category</h3>
+          <h3 data-i18n="dash_cat">Revenue by Category</h3>
           <div class="cat-pills" id="catBreak"></div>
         </div>
         <div class="chart-card">
-          <h3>Quick Links</h3>
+          <h3 data-i18n="dash_quick">Quick Links</h3>
           <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
-            <button class="ctrl-btn" onclick="showPage('orders')" style="text-align:left">&#128203; Manage Orders</button>
-            <button class="ctrl-btn" onclick="showPage('menu-editor')" style="text-align:left">&#127860; Edit Menu</button>
-            <button class="ctrl-btn" onclick="window.open('/menu','_blank')" style="text-align:left">&#128241; Customer Menu</button>
-            <button class="ctrl-btn" onclick="window.open('/kitchen','_blank')" style="text-align:left">&#127859; Kitchen Display</button>
+            <button class="ctrl-btn" onclick="showPage('orders')" style="text-align:left">&#128203; <span data-i18n="dash_ql_orders">Manage Orders</span></button>
+            <button class="ctrl-btn" onclick="showPage('menu-editor')" style="text-align:left">&#127860; <span data-i18n="dash_ql_menu">Edit Menu</span></button>
+            <button class="ctrl-btn" onclick="window.open('/menu','_blank')" style="text-align:left">&#128241; <span data-i18n="dash_ql_customer">Customer Menu</span></button>
+            <button class="ctrl-btn" onclick="window.open('/kitchen','_blank')" style="text-align:left">&#127859; <span data-i18n="dash_ql_kitchen">Kitchen Display</span></button>
           </div>
         </div>
       </div>
@@ -203,56 +215,63 @@
 
     <!-- ORDERS -->
     <div class="page" id="pg-orders">
-      <h2 style="margin-bottom:20px">Orders</h2>
-      <div class="ctrl-row">
+      <h2 style="margin-bottom:20px" data-i18n="orders_title">Orders</h2>
+      <div class="ctrl-row" id="orderFilters">
         <input type="date" id="orderDate" onchange="renderOrders()">
-        <div class="ctrl-btn active" onclick="setOF('all')">All</div>
-        <div class="ctrl-btn" onclick="setOF('new')">New</div>
-        <div class="ctrl-btn" onclick="setOF('preparing')">Preparing</div>
-        <div class="ctrl-btn" onclick="setOF('ready')">Ready</div>
-        <div class="ctrl-btn" onclick="setOF('served')">Served</div>
-        <div class="ctrl-btn" onclick="setOF('cancelled')">Cancelled</div>
+        <div class="ctrl-btn active" data-filter="all" onclick="setOF('all')"><span data-i18n="filter_all">All</span></div>
+        <div class="ctrl-btn" data-filter="new" onclick="setOF('new')"><span data-i18n="filter_new">New</span></div>
+        <div class="ctrl-btn" data-filter="preparing" onclick="setOF('preparing')"><span data-i18n="filter_preparing">Preparing</span></div>
+        <div class="ctrl-btn" data-filter="ready" onclick="setOF('ready')"><span data-i18n="filter_ready">Ready</span></div>
+        <div class="ctrl-btn" data-filter="served" onclick="setOF('served')"><span data-i18n="filter_served">Served</span></div>
+        <div class="ctrl-btn" data-filter="cancelled" onclick="setOF('cancelled')"><span data-i18n="filter_cancelled">Cancelled</span></div>
       </div>
       <table>
-        <thead><tr><th>ID</th><th>Time</th><th>Table</th><th>Items</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead>
+        <thead><tr><th data-i18n="th_id">ID</th><th data-i18n="th_time">Time</th><th data-i18n="th_table">Table</th><th data-i18n="th_items">Items</th><th data-i18n="th_total">Total</th><th data-i18n="th_status">Status</th><th data-i18n="th_actions">Actions</th></tr></thead>
         <tbody id="orderBody"></tbody>
       </table>
     </div>
 
     <!-- MENU EDITOR -->
     <div class="page" id="pg-menu-editor">
-      <h2 style="margin-bottom:20px">Menu Editor</h2>
-      <button class="add-btn" onclick="openMenuModal()">+ Add Menu Item</button>
+      <h2 style="margin-bottom:20px" data-i18n="menu_title">Menu Editor</h2>
+      <button class="add-btn" onclick="openMenuModal()">+ <span data-i18n="menu_add">Add Menu Item</span></button>
       <div class="menu-grid" id="menuGrid"></div>
+    </div>
+
+    <!-- ROOMS -->
+    <div class="page" id="pg-rooms">
+      <h2 style="margin-bottom:20px" data-i18n="rooms_title">Rooms Management</h2>
+      <button class="add-btn" onclick="openRoomModal()">+ <span data-i18n="rooms_add">Add Room</span></button>
+      <div class="menu-grid" id="roomGrid"></div>
     </div>
 
     <!-- QR CODES -->
     <div class="page" id="pg-qr-codes">
-      <h2 style="margin-bottom:8px">QR Codes for Tables</h2>
-      <p style="color:var(--dim);margin-bottom:20px;font-size:14px">Print these QR codes and place them on each table. Customers scan to see the menu with their table pre-selected.</p>
+      <h2 style="margin-bottom:8px" data-i18n="qr_title">QR Codes for Tables</h2>
+      <p style="color:var(--dim);margin-bottom:20px;font-size:14px" data-i18n="qr_desc">Print these QR codes and place them on each table. Customers scan to see the menu with their table pre-selected.</p>
       <div class="ctrl-row">
-        <label style="font-size:13px;font-weight:600">Base URL:</label>
+        <label style="font-size:13px;font-weight:600" data-i18n="qr_base">Base URL:</label>
         <input type="text" id="qrBaseUrl" value="" placeholder="https://your-domain.com" style="flex:1" oninput="renderQRs()">
-        <button class="ctrl-btn" onclick="printQRs()" style="background:var(--dark);color:white;border-color:var(--dark)">&#128424; Print All</button>
+        <button class="ctrl-btn" onclick="printQRs()" style="background:var(--dark);color:white;border-color:var(--dark)">&#128424; <span data-i18n="qr_print">Print All</span></button>
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px" id="qrGrid"></div>
     </div>
 
     <!-- FINANCIALS -->
     <div class="page" id="pg-financials">
-      <h2 style="margin-bottom:20px">Financial Overview</h2>
+      <h2 style="margin-bottom:20px" data-i18n="fin_title">Financial Overview</h2>
       <div class="ctrl-row">
-        <label style="font-size:13px;font-weight:600">Month:</label>
+        <label style="font-size:13px;font-weight:600" data-i18n="fin_month">Month:</label>
         <input type="month" id="finMonth" onchange="loadFinancials()">
       </div>
       <div class="stats-row" id="finStats"></div>
       <div class="chart-row">
         <div class="chart-card">
-          <h3>Daily Revenue This Month</h3>
+          <h3 data-i18n="fin_daily">Daily Revenue This Month</h3>
           <div class="bar-chart" id="finChart" style="height:160px"></div>
         </div>
         <div class="chart-card">
-          <h3>Profit & Loss Summary</h3>
+          <h3 data-i18n="fin_pl">Profit & Loss Summary</h3>
           <div id="plSummary"></div>
         </div>
       </div>
@@ -260,38 +279,38 @@
 
     <!-- STAFF & PAYROLL -->
     <div class="page" id="pg-staff">
-      <h2 style="margin-bottom:20px">Staff & Payroll</h2>
+      <h2 style="margin-bottom:20px" data-i18n="staff_title">Staff & Payroll</h2>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
         <!-- Staff list -->
         <div>
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-            <h3 style="font-size:16px">Staff Members</h3>
-            <button class="add-btn" style="margin:0;font-size:12px;padding:8px 14px" onclick="openStaffModal()">+ Add Staff</button>
+            <h3 style="font-size:16px" data-i18n="staff_members">Staff Members</h3>
+            <button class="add-btn" style="margin:0;font-size:12px;padding:8px 14px" onclick="openStaffModal()">+ <span data-i18n="staff_add">Add Staff</span></button>
           </div>
           <table>
-            <thead><tr><th>Name</th><th>Role</th><th>Salary</th><th>Actions</th></tr></thead>
+            <thead><tr><th data-i18n="th_name">Name</th><th data-i18n="th_role">Role</th><th data-i18n="th_salary">Salary</th><th data-i18n="th_actions">Actions</th></tr></thead>
             <tbody id="staffBody"></tbody>
           </table>
           <div style="margin-top:12px;padding:14px;background:var(--card);border:1px solid var(--border);border-radius:8px">
-            <div style="font-size:12px;color:var(--dim)">Total Monthly Payroll</div>
+            <div style="font-size:12px;color:var(--dim)" data-i18n="staff_total_payroll">Total Monthly Payroll</div>
             <div style="font-size:24px;font-weight:700;color:var(--sand)" id="totalPayroll">฿0</div>
           </div>
         </div>
         <!-- Pay logs -->
         <div>
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-            <h3 style="font-size:16px">Pay Logs</h3>
-            <button class="add-btn" style="margin:0;font-size:12px;padding:8px 14px" onclick="openPayModal()">+ Add Payment</button>
+            <h3 style="font-size:16px" data-i18n="pay_logs">Pay Logs</h3>
+            <button class="add-btn" style="margin:0;font-size:12px;padding:8px 14px" onclick="openPayModal()">+ <span data-i18n="pay_add">Add Payment</span></button>
           </div>
           <div class="ctrl-row" style="margin-bottom:10px">
             <input type="month" id="payMonth" onchange="loadPayLogs()">
           </div>
           <table>
-            <thead><tr><th>Date</th><th>Staff</th><th>Type</th><th>Amount</th><th></th></tr></thead>
+            <thead><tr><th data-i18n="th_date">Date</th><th data-i18n="th_staff">Staff</th><th data-i18n="th_type">Type</th><th data-i18n="th_amount">Amount</th><th></th></tr></thead>
             <tbody id="payBody"></tbody>
           </table>
           <div style="margin-top:12px;padding:14px;background:var(--card);border:1px solid var(--border);border-radius:8px">
-            <div style="font-size:12px;color:var(--dim)">Total Paid This Month</div>
+            <div style="font-size:12px;color:var(--dim)" data-i18n="pay_total">Total Paid This Month</div>
             <div style="font-size:24px;font-weight:700;color:var(--red)" id="totalPaid">฿0</div>
           </div>
         </div>
@@ -304,27 +323,27 @@
 <!-- Menu Item Modal -->
 <div class="modal-overlay" id="menuModal">
   <div class="modal-form">
-    <h3 id="modalTitle">Add Menu Item</h3>
+    <h3 id="modalTitle" data-i18n="modal_add_menu">Add Menu Item</h3>
     <input type="hidden" id="editId">
-    <div class="fg"><label>Name (English) *</label><input id="f_name"></div>
+    <div class="fg"><label data-i18n="lbl_name_en">Name (English) *</label><input id="f_name"></div>
     <div class="fg-row">
-      <div class="fg"><label>Thai Name</label><input id="f_nameTh"></div>
-      <div class="fg"><label>Chinese Name</label><input id="f_nameZh"></div>
+      <div class="fg"><label data-i18n="lbl_name_th">Thai Name</label><input id="f_nameTh"></div>
+      <div class="fg"><label data-i18n="lbl_name_zh">Chinese Name</label><input id="f_nameZh"></div>
     </div>
     <div class="fg-row">
-      <div class="fg"><label>Russian Name</label><input id="f_nameRu"></div>
-      <div class="fg"><label>Korean Name</label><input id="f_nameKo"></div>
+      <div class="fg"><label data-i18n="lbl_name_ru">Russian Name</label><input id="f_nameRu"></div>
+      <div class="fg"><label data-i18n="lbl_name_ko">Korean Name</label><input id="f_nameKo"></div>
     </div>
-    <div class="fg"><label>Japanese Name</label><input id="f_nameJa"></div>
+    <div class="fg"><label data-i18n="lbl_name_ja">Japanese Name</label><input id="f_nameJa"></div>
     <div class="fg-row">
-      <div class="fg"><label>Price (฿) *</label><input type="number" id="f_price"></div>
-      <div class="fg"><label>Category *</label><select id="f_cat"><option value="starters">Starters</option><option value="mains">Mains</option><option value="drinks">Drinks</option><option value="desserts">Desserts</option></select></div>
+      <div class="fg"><label data-i18n="lbl_price">Price (฿) *</label><input type="number" id="f_price"></div>
+      <div class="fg"><label data-i18n="lbl_category">Category *</label><select id="f_cat"><option value="starters">Starters</option><option value="mains">Mains</option><option value="drinks">Drinks</option><option value="desserts">Desserts</option></select></div>
     </div>
-    <div class="fg"><label>Description</label><textarea id="f_desc" rows="2"></textarea></div>
-    <div class="fg"><label>Image URL</label><input id="f_image" placeholder="/images/filename.jpg"></div>
+    <div class="fg"><label data-i18n="lbl_desc">Description</label><textarea id="f_desc" rows="2"></textarea></div>
+    <div class="fg"><label data-i18n="lbl_image">Image URL</label><input id="f_image" placeholder="/images/filename.jpg"></div>
     <div class="modal-btns">
-      <button class="mbtn cancel" onclick="closeMenuModal()">Cancel</button>
-      <button class="mbtn save" onclick="saveMenuItem()">Save</button>
+      <button class="mbtn cancel" onclick="closeMenuModal()" data-i18n="btn_cancel">Cancel</button>
+      <button class="mbtn save" onclick="saveMenuItem()" data-i18n="btn_save">Save</button>
     </div>
   </div>
 </div>
@@ -332,16 +351,16 @@
 <!-- Staff Modal -->
 <div class="modal-overlay" id="staffModal">
   <div class="modal-form">
-    <h3 id="staffModalTitle">Add Staff Member</h3>
+    <h3 id="staffModalTitle" data-i18n="modal_add_staff">Add Staff Member</h3>
     <input type="hidden" id="s_editId">
-    <div class="fg"><label>Name *</label><input id="s_name"></div>
+    <div class="fg"><label data-i18n="lbl_staff_name">Name *</label><input id="s_name"></div>
     <div class="fg-row">
-      <div class="fg"><label>Role *</label><input id="s_role" placeholder="e.g. Waitress, Chef"></div>
-      <div class="fg"><label>Monthly Salary (฿) *</label><input type="number" id="s_salary"></div>
+      <div class="fg"><label data-i18n="lbl_staff_role">Role *</label><input id="s_role" placeholder="e.g. Waitress, Chef"></div>
+      <div class="fg"><label data-i18n="lbl_staff_salary">Monthly Salary (฿) *</label><input type="number" id="s_salary"></div>
     </div>
     <div class="modal-btns">
-      <button class="mbtn cancel" onclick="closeStaffModal()">Cancel</button>
-      <button class="mbtn save" onclick="saveStaff()">Save</button>
+      <button class="mbtn cancel" onclick="closeStaffModal()" data-i18n="btn_cancel">Cancel</button>
+      <button class="mbtn save" onclick="saveStaff()" data-i18n="btn_save">Save</button>
     </div>
   </div>
 </div>
@@ -349,59 +368,267 @@
 <!-- Pay Log Modal -->
 <div class="modal-overlay" id="payModal">
   <div class="modal-form">
-    <h3>Record Payment</h3>
-    <div class="fg"><label>Staff Member *</label><select id="p_staff"></select></div>
+    <h3 data-i18n="modal_record_pay">Record Payment</h3>
+    <div class="fg"><label data-i18n="lbl_pay_staff">Staff Member *</label><select id="p_staff"></select></div>
     <div class="fg-row">
-      <div class="fg"><label>Amount (฿) *</label><input type="number" id="p_amount"></div>
-      <div class="fg"><label>Type</label><select id="p_type"><option value="salary">Salary</option><option value="bonus">Bonus</option><option value="advance">Advance</option><option value="overtime">Overtime</option></select></div>
+      <div class="fg"><label data-i18n="lbl_pay_amount">Amount (฿) *</label><input type="number" id="p_amount"></div>
+      <div class="fg"><label data-i18n="lbl_pay_type">Type</label><select id="p_type"><option value="salary">Salary</option><option value="bonus">Bonus</option><option value="advance">Advance</option><option value="overtime">Overtime</option></select></div>
     </div>
     <div class="fg-row">
-      <div class="fg"><label>Date</label><input type="date" id="p_date"></div>
-      <div class="fg"><label>Note</label><input id="p_note" placeholder="Optional note"></div>
+      <div class="fg"><label data-i18n="lbl_pay_date">Date</label><input type="date" id="p_date"></div>
+      <div class="fg"><label data-i18n="lbl_pay_note">Note</label><input id="p_note" placeholder="Optional note"></div>
     </div>
     <div class="modal-btns">
-      <button class="mbtn cancel" onclick="closePayModal()">Cancel</button>
-      <button class="mbtn save" onclick="savePayLog()">Save</button>
+      <button class="mbtn cancel" onclick="closePayModal()" data-i18n="btn_cancel">Cancel</button>
+      <button class="mbtn save" onclick="savePayLog()" data-i18n="btn_save">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Room Modal -->
+<div class="modal-overlay" id="roomModal">
+  <div class="modal-form">
+    <h3 id="roomModalTitle" data-i18n="modal_add_room">Add Room</h3>
+    <input type="hidden" id="r_editId">
+    <div class="fg-row">
+      <div class="fg"><label data-i18n="lbl_room_name">Name (EN) *</label><input id="r_name"></div>
+      <div class="fg"><label data-i18n="lbl_room_name_th">Name (TH)</label><input id="r_nameTh"></div>
+    </div>
+    <div class="fg"><label data-i18n="lbl_room_desc">Description (EN)</label><textarea id="r_desc" rows="2"></textarea></div>
+    <div class="fg"><label data-i18n="lbl_room_desc_th">Description (TH)</label><textarea id="r_descTh" rows="2"></textarea></div>
+    <div class="fg-row">
+      <div class="fg"><label data-i18n="lbl_room_price">Price per Night (฿) *</label><input type="number" id="r_price"></div>
+      <div class="fg"><label data-i18n="lbl_room_image">Image URL</label><input id="r_image" placeholder="/images/filename.jpg"></div>
+    </div>
+    <div class="fg"><label data-i18n="lbl_room_booking">Booking URL</label><input id="r_bookingUrl" placeholder="https://www.booking.com/..."></div>
+    <div class="fg"><label data-i18n="lbl_room_amenities">Amenities (EN)</label><input id="r_amenities" placeholder="WiFi, Air-con, Pool"></div>
+    <div class="fg"><label data-i18n="lbl_room_amenities_th">Amenities (TH)</label><input id="r_amenitiesTh" placeholder="WiFi, แอร์, สระ"></div>
+    <div class="modal-btns">
+      <button class="mbtn cancel" onclick="closeRoomModal()" data-i18n="btn_cancel">Cancel</button>
+      <button class="mbtn save" onclick="saveRoom()" data-i18n="btn_save">Save</button>
     </div>
   </div>
 </div>
 
 <script>
-let allOrders=[],allMenu=[],orderFilter="all";
+// ── i18n System ──
+const adminI18n = {
+  en: {
+    // Sidebar
+    sb_dashboard:"Dashboard", sb_orders:"Orders", sb_menu:"Menu Editor", sb_rooms:"Rooms",
+    sb_qr:"QR Codes", sb_financials:"Financials", sb_staff:"Staff & Payroll",
+    sb_kitchen:"Kitchen View", sb_website:"Website",
+    // Dashboard
+    dash_title:"Dashboard", dash_today_rev:"Today's Revenue", dash_completed:"Completed",
+    dash_orders_done:"orders done", dash_avg:"Avg Order Value", dash_per_order:"per order",
+    dash_alltime:"All-Time Revenue", dash_weekly:"Weekly Revenue (Last 7 Days)",
+    dash_top:"Top Items Today", dash_cat:"Revenue by Category", dash_quick:"Quick Links",
+    dash_ql_orders:"Manage Orders", dash_ql_menu:"Edit Menu",
+    dash_ql_customer:"Customer Menu", dash_ql_kitchen:"Kitchen Display",
+    dash_no_orders:"No orders yet today", dash_no_data:"No data yet",
+    // Orders
+    orders_title:"Orders", filter_all:"All", filter_new:"New", filter_preparing:"Preparing",
+    filter_ready:"Ready", filter_served:"Served", filter_cancelled:"Cancelled",
+    th_id:"ID", th_time:"Time", th_table:"Table", th_items:"Items", th_total:"Total",
+    th_status:"Status", th_actions:"Actions", no_orders:"No orders",
+    btn_prep:"Prep", btn_ready:"Ready", btn_served:"Served", btn_cancel:"Cancel",
+    // Menu
+    menu_title:"Menu Editor", menu_add:"Add Menu Item",
+    btn_edit:"Edit", btn_disable:"Disable", btn_enable:"Enable", btn_delete:"Delete",
+    // Rooms
+    rooms_title:"Rooms Management", rooms_add:"Add Room",
+    room_available:"Available", room_unavailable:"Unavailable",
+    room_per_night:"/ night",
+    // QR
+    qr_title:"QR Codes for Tables",
+    qr_desc:"Print these QR codes and place them on each table. Customers scan to see the menu with their table pre-selected.",
+    qr_base:"Base URL:", qr_print:"Print All",
+    // Financials
+    fin_title:"Financial Overview", fin_month:"Month:",
+    fin_daily:"Daily Revenue This Month", fin_pl:"Profit & Loss Summary",
+    fin_revenue:"Revenue", fin_expenses:"Expenses (Payroll)", fin_profit:"Net Profit",
+    fin_orders:"orders", fin_active_staff:"active staff", fin_avg_order:"Avg order",
+    fin_total_rev:"Total Revenue", fin_payroll:"Staff Payroll", fin_net:"Net Profit",
+    fin_no_data:"No revenue data this month",
+    // Staff
+    staff_title:"Staff & Payroll", staff_members:"Staff Members", staff_add:"Add Staff",
+    th_name:"Name", th_role:"Role", th_salary:"Salary",
+    staff_total_payroll:"Total Monthly Payroll", no_staff:"No staff members",
+    pay_logs:"Pay Logs", pay_add:"Add Payment",
+    th_date:"Date", th_staff:"Staff", th_type:"Type", th_amount:"Amount",
+    pay_total:"Total Paid This Month", no_payments:"No payments recorded",
+    // Modals
+    modal_add_menu:"Add Menu Item", modal_edit_menu:"Edit Menu Item",
+    modal_add_staff:"Add Staff Member", modal_edit_staff:"Edit Staff",
+    modal_record_pay:"Record Payment",
+    modal_add_room:"Add Room", modal_edit_room:"Edit Room",
+    lbl_name_en:"Name (English) *", lbl_name_th:"Thai Name", lbl_name_zh:"Chinese Name",
+    lbl_name_ru:"Russian Name", lbl_name_ko:"Korean Name", lbl_name_ja:"Japanese Name",
+    lbl_price:"Price (฿) *", lbl_category:"Category *", lbl_desc:"Description",
+    lbl_image:"Image URL",
+    lbl_staff_name:"Name *", lbl_staff_role:"Role *", lbl_staff_salary:"Monthly Salary (฿) *",
+    lbl_pay_staff:"Staff Member *", lbl_pay_amount:"Amount (฿) *", lbl_pay_type:"Type",
+    lbl_pay_date:"Date", lbl_pay_note:"Note",
+    lbl_room_name:"Name (EN) *", lbl_room_name_th:"Name (TH)",
+    lbl_room_desc:"Description (EN)", lbl_room_desc_th:"Description (TH)",
+    lbl_room_price:"Price per Night (฿) *", lbl_room_image:"Image URL",
+    lbl_room_booking:"Booking URL",
+    lbl_room_amenities:"Amenities (EN)", lbl_room_amenities_th:"Amenities (TH)",
+    btn_cancel:"Cancel", btn_save:"Save",
+    // Confirm/Alert
+    confirm_delete_menu:"Delete this menu item?",
+    confirm_delete_staff:"Delete this staff member?",
+    confirm_delete_pay:"Delete this pay record?",
+    confirm_delete_room:"Delete this room?",
+    alert_name_price:"Name and price are required",
+    alert_name_role:"Name and role are required",
+    alert_amount:"Amount is required",
+    alert_room_name_price:"Room name and price are required",
+  },
+  th: {
+    // Sidebar
+    sb_dashboard:"แดชบอร์ด", sb_orders:"ออเดอร์", sb_menu:"จัดการเมนู", sb_rooms:"ห้องพัก",
+    sb_qr:"QR โค้ด", sb_financials:"การเงิน", sb_staff:"พนักงาน & เงินเดือน",
+    sb_kitchen:"หน้าจอครัว", sb_website:"เว็บไซต์",
+    // Dashboard
+    dash_title:"แดชบอร์ด", dash_today_rev:"รายได้วันนี้", dash_completed:"เสร็จสิ้น",
+    dash_orders_done:"ออเดอร์เสร็จ", dash_avg:"ค่าเฉลี่ยต่อออเดอร์", dash_per_order:"ต่อออเดอร์",
+    dash_alltime:"รายได้ทั้งหมด", dash_weekly:"รายได้รายสัปดาห์ (7 วันย้อนหลัง)",
+    dash_top:"เมนูยอดนิยมวันนี้", dash_cat:"รายได้ตามหมวดหมู่", dash_quick:"ลิงก์ด่วน",
+    dash_ql_orders:"จัดการออเดอร์", dash_ql_menu:"แก้ไขเมนู",
+    dash_ql_customer:"เมนูลูกค้า", dash_ql_kitchen:"หน้าจอครัว",
+    dash_no_orders:"ยังไม่มีออเดอร์วันนี้", dash_no_data:"ยังไม่มีข้อมูล",
+    // Orders
+    orders_title:"ออเดอร์", filter_all:"ทั้งหมด", filter_new:"ใหม่", filter_preparing:"กำลังทำ",
+    filter_ready:"พร้อม", filter_served:"เสิร์ฟแล้ว", filter_cancelled:"ยกเลิก",
+    th_id:"รหัส", th_time:"เวลา", th_table:"โต๊ะ", th_items:"รายการ", th_total:"รวม",
+    th_status:"สถานะ", th_actions:"การดำเนินการ", no_orders:"ไม่มีออเดอร์",
+    btn_prep:"เตรียม", btn_ready:"พร้อม", btn_served:"เสิร์ฟ", btn_cancel:"ยกเลิก",
+    // Menu
+    menu_title:"จัดการเมนู", menu_add:"เพิ่มเมนู",
+    btn_edit:"แก้ไข", btn_disable:"ปิดใช้งาน", btn_enable:"เปิดใช้งาน", btn_delete:"ลบ",
+    // Rooms
+    rooms_title:"จัดการห้องพัก", rooms_add:"เพิ่มห้องพัก",
+    room_available:"พร้อมให้บริการ", room_unavailable:"ไม่พร้อม",
+    room_per_night:"/ คืน",
+    // QR
+    qr_title:"QR โค้ดสำหรับโต๊ะ",
+    qr_desc:"พิมพ์ QR โค้ดเหล่านี้แล้ววางบนแต่ละโต๊ะ ลูกค้าสแกนเพื่อดูเมนูพร้อมเลือกโต๊ะอัตโนมัติ",
+    qr_base:"URL ฐาน:", qr_print:"พิมพ์ทั้งหมด",
+    // Financials
+    fin_title:"ภาพรวมการเงิน", fin_month:"เดือน:",
+    fin_daily:"รายได้รายวันเดือนนี้", fin_pl:"สรุปกำไรขาดทุน",
+    fin_revenue:"รายได้", fin_expenses:"ค่าใช้จ่าย (เงินเดือน)", fin_profit:"กำไรสุทธิ",
+    fin_orders:"ออเดอร์", fin_active_staff:"พนักงานที่ทำงาน", fin_avg_order:"เฉลี่ยต่อออเดอร์",
+    fin_total_rev:"รายได้ทั้งหมด", fin_payroll:"เงินเดือนพนักงาน", fin_net:"กำไรสุทธิ",
+    fin_no_data:"ไม่มีข้อมูลรายได้เดือนนี้",
+    // Staff
+    staff_title:"พนักงาน & เงินเดือน", staff_members:"รายชื่อพนักงาน", staff_add:"เพิ่มพนักงาน",
+    th_name:"ชื่อ", th_role:"ตำแหน่ง", th_salary:"เงินเดือน",
+    staff_total_payroll:"เงินเดือนรวมต่อเดือน", no_staff:"ไม่มีพนักงาน",
+    pay_logs:"บันทึกการจ่าย", pay_add:"เพิ่มการจ่าย",
+    th_date:"วันที่", th_staff:"พนักงาน", th_type:"ประเภท", th_amount:"จำนวน",
+    pay_total:"จ่ายทั้งหมดเดือนนี้", no_payments:"ยังไม่มีบันทึกการจ่าย",
+    // Modals
+    modal_add_menu:"เพิ่มเมนู", modal_edit_menu:"แก้ไขเมนู",
+    modal_add_staff:"เพิ่มพนักงาน", modal_edit_staff:"แก้ไขพนักงาน",
+    modal_record_pay:"บันทึกการจ่ายเงิน",
+    modal_add_room:"เพิ่มห้องพัก", modal_edit_room:"แก้ไขห้องพัก",
+    lbl_name_en:"ชื่อ (อังกฤษ) *", lbl_name_th:"ชื่อไทย", lbl_name_zh:"ชื่อจีน",
+    lbl_name_ru:"ชื่อรัสเซีย", lbl_name_ko:"ชื่อเกาหลี", lbl_name_ja:"ชื่อญี่ปุ่น",
+    lbl_price:"ราคา (฿) *", lbl_category:"หมวดหมู่ *", lbl_desc:"รายละเอียด",
+    lbl_image:"URL รูปภาพ",
+    lbl_staff_name:"ชื่อ *", lbl_staff_role:"ตำแหน่ง *", lbl_staff_salary:"เงินเดือน (฿) *",
+    lbl_pay_staff:"พนักงาน *", lbl_pay_amount:"จำนวน (฿) *", lbl_pay_type:"ประเภท",
+    lbl_pay_date:"วันที่", lbl_pay_note:"หมายเหตุ",
+    lbl_room_name:"ชื่อ (EN) *", lbl_room_name_th:"ชื่อ (TH)",
+    lbl_room_desc:"รายละเอียด (EN)", lbl_room_desc_th:"รายละเอียด (TH)",
+    lbl_room_price:"ราคาต่อคืน (฿) *", lbl_room_image:"URL รูปภาพ",
+    lbl_room_booking:"URL จอง",
+    lbl_room_amenities:"สิ่งอำนวยความสะดวก (EN)", lbl_room_amenities_th:"สิ่งอำนวยความสะดวก (TH)",
+    btn_cancel:"ยกเลิก", btn_save:"บันทึก",
+    // Confirm/Alert
+    confirm_delete_menu:"ลบเมนูนี้?",
+    confirm_delete_staff:"ลบพนักงานนี้?",
+    confirm_delete_pay:"ลบบันทึกการจ่ายนี้?",
+    confirm_delete_room:"ลบห้องพักนี้?",
+    alert_name_price:"ต้องระบุชื่อและราคา",
+    alert_name_role:"ต้องระบุชื่อและตำแหน่ง",
+    alert_amount:"ต้องระบุจำนวนเงิน",
+    alert_room_name_price:"ต้องระบุชื่อห้องและราคา",
+  }
+};
+
+let adminLang = localStorage.getItem("adminLang") || "en";
+
+function t(key) {
+  return (adminI18n[adminLang] && adminI18n[adminLang][key]) || adminI18n.en[key] || key;
+}
+
+function setAdminLang(lang) {
+  adminLang = lang;
+  localStorage.setItem("adminLang", lang);
+  document.getElementById("langToggleBtn").textContent = lang === "en" ? "TH" : "EN";
+  // Update static data-i18n elements
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const key = el.dataset.i18n;
+    const val = t(key);
+    if (val) el.innerHTML = val;
+  });
+  // Re-render dynamic content
+  renderOrders();
+  renderMenuEditor();
+  renderRoomGrid();
+  loadStats();
+  const activePage = document.querySelector(".page.active");
+  if (activePage && activePage.id === "pg-financials") loadFinancials();
+  if (activePage && activePage.id === "pg-staff") { renderStaff(); loadPayLogs(); }
+}
+
+function toggleAdminLang() {
+  setAdminLang(adminLang === "en" ? "th" : "en");
+}
+
+// ── State ──
+let allOrders=[], allMenu=[], allRooms=[], orderFilter="all";
 const today=new Date().toISOString().split("T")[0];
 document.getElementById("orderDate").value=today;
 
 // SSE
 const es=new EventSource("/api/admin/stream");
 es.onmessage=e=>{const d=JSON.parse(e.data);
-  if(d.type==="init"){allOrders=d.orders;allMenu=d.menu;renderAll()}
+  if(d.type==="init"){allOrders=d.orders;allMenu=d.menu;if(d.rooms)allRooms=d.rooms;renderAll()}
   else if(d.type==="new_order"){allOrders.push(d.order);renderAll()}
   else if(d.type==="order_updated"){const i=allOrders.findIndex(o=>o.id===d.order.id);if(i!==-1)allOrders[i]=d.order;renderAll()}
   else if(d.type==="menu_updated"){allMenu=d.menu;renderMenuEditor()}
+  else if(d.type==="rooms_updated"){allRooms=d.rooms;renderRoomGrid()}
 };
 
 function showPage(id){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
   document.getElementById("pg-"+id).classList.add("active");
   document.querySelectorAll(".sb-item").forEach(s=>s.classList.remove("active"));
-  document.querySelectorAll(".sb-item").forEach(s=>{if(s.textContent.toLowerCase().includes(id.split("-")[0]))s.classList.add("active")});
+  document.querySelectorAll(".sb-item[data-page]").forEach(s=>{
+    if(s.dataset.page===id)s.classList.add("active");
+  });
   if(id==="dashboard")loadStats();
   if(id==="qr-codes")renderQRs();
   if(id==="financials"){if(!document.getElementById("finMonth").value)document.getElementById("finMonth").value=new Date().toISOString().slice(0,7);loadFinancials()}
   if(id==="staff"){if(!document.getElementById("payMonth").value)document.getElementById("payMonth").value=new Date().toISOString().slice(0,7);loadStaff();loadPayLogs()}
+  if(id==="rooms")renderRoomGrid();
 }
 
-function renderAll(){renderOrders();renderMenuEditor();loadStats()}
+function renderAll(){renderOrders();renderMenuEditor();renderRoomGrid();loadStats()}
 
 // ── Dashboard ──
 async function loadStats(){
   const r=await fetch("/api/stats");const s=await r.json();
   document.getElementById("dRev").textContent="฿"+s.today.revenue.toLocaleString();
-  document.getElementById("dOrd").textContent=s.today.orders+" orders";
+  document.getElementById("dOrd").textContent=s.today.orders+" "+t("orders_title").toLowerCase();
   document.getElementById("dComp").textContent=s.today.completed;
   document.getElementById("dAvg").textContent="฿"+s.today.avgOrderValue;
   document.getElementById("dAll").textContent="฿"+s.allTime.revenue.toLocaleString();
-  document.getElementById("dAllOrd").textContent=s.allTime.orders+" orders total";
+  document.getElementById("dAllOrd").textContent=s.allTime.orders+" "+t("orders_title").toLowerCase();
 
   // Bar chart
   const maxR=Math.max(...s.weeklyRevenue.map(d=>d.revenue),1);
@@ -411,15 +638,19 @@ async function loadStats(){
   }).join("");
 
   // Top items
-  document.getElementById("topItems").innerHTML=s.topItems.length?s.topItems.map(i=>`<div class="top-item"><div><span class="ti-name">${i.name}</span> <span class="ti-qty">x${i.qty}</span></div><span class="ti-rev">฿${i.revenue}</span></div>`).join(""):'<div style="color:#ccc;font-size:13px;padding:20px 0">No orders yet today</div>';
+  document.getElementById("topItems").innerHTML=s.topItems.length?s.topItems.map(i=>`<div class="top-item"><div><span class="ti-name">${i.name}</span> <span class="ti-qty">x${i.qty}</span></div><span class="ti-rev">฿${i.revenue}</span></div>`).join(""):`<div style="color:#ccc;font-size:13px;padding:20px 0">${t('dash_no_orders')}</div>`;
 
   // Category breakdown
   const cats=s.catRevenue;
-  document.getElementById("catBreak").innerHTML=Object.entries(cats).map(([c,v])=>`<span class="cat-pill ${c}">${c}: ฿${v}</span>`).join("")||'<span style="color:#ccc;font-size:13px">No data yet</span>';
+  document.getElementById("catBreak").innerHTML=Object.entries(cats).map(([c,v])=>`<span class="cat-pill ${c}">${c}: ฿${v}</span>`).join("")||`<span style="color:#ccc;font-size:13px">${t('dash_no_data')}</span>`;
 }
 
 // ── Orders ──
-function setOF(f){orderFilter=f;document.querySelectorAll(".ctrl-row .ctrl-btn").forEach(b=>b.classList.toggle("active",b.textContent.toLowerCase()===f||(f==="all"&&b.textContent==="All")));renderOrders()}
+function setOF(f){
+  orderFilter=f;
+  document.querySelectorAll("#orderFilters .ctrl-btn").forEach(b=>b.classList.toggle("active",b.dataset.filter===f));
+  renderOrders();
+}
 
 function renderOrders(){
   const date=document.getElementById("orderDate").value;
@@ -427,21 +658,21 @@ function renderOrders(){
   if(orderFilter!=="all")list=list.filter(o=>o.status===orderFilter);
   list.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
 
-  if(!list.length){document.getElementById("orderBody").innerHTML=`<tr><td colspan="7" style="text-align:center;color:#ccc;padding:40px">No orders</td></tr>`;return}
+  if(!list.length){document.getElementById("orderBody").innerHTML=`<tr><td colspan="7" style="text-align:center;color:#ccc;padding:40px">${t('no_orders')}</td></tr>`;return}
   document.getElementById("orderBody").innerHTML=list.map(o=>{
-    const t=new Date(o.createdAt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    const time=new Date(o.createdAt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
     return`<tr>
       <td><strong>#${o.id}</strong></td>
-      <td>${t}</td>
+      <td>${time}</td>
       <td>T${o.tableNumber}</td>
       <td>${o.items.map(i=>`${i.quantity}x ${i.name}`).join(", ")}</td>
       <td><strong>฿${o.total}</strong></td>
       <td><span class="badge ${o.status}">${o.status}</span></td>
       <td>
-        ${o.status==="new"?`<button class="act-btn c-green" onclick="updO(${o.id},'preparing')">Prep</button>`:''}
-        ${o.status==="preparing"?`<button class="act-btn c-green" onclick="updO(${o.id},'ready')">Ready</button>`:''}
-        ${o.status==="ready"?`<button class="act-btn c-purple" onclick="updO(${o.id},'served')">Served</button>`:''}
-        ${!["done","served","cancelled"].includes(o.status)?`<button class="act-btn c-red" onclick="updO(${o.id},'cancelled')">Cancel</button>`:''}
+        ${o.status==="new"?`<button class="act-btn c-green" onclick="updO(${o.id},'preparing')">${t('btn_prep')}</button>`:''}
+        ${o.status==="preparing"?`<button class="act-btn c-green" onclick="updO(${o.id},'ready')">${t('btn_ready')}</button>`:''}
+        ${o.status==="ready"?`<button class="act-btn c-purple" onclick="updO(${o.id},'served')">${t('btn_served')}</button>`:''}
+        ${!["done","served","cancelled"].includes(o.status)?`<button class="act-btn c-red" onclick="updO(${o.id},'cancelled')">${t('btn_cancel')}</button>`:''}
       </td>
     </tr>`;
   }).join("");
@@ -462,9 +693,9 @@ function renderMenuEditor(){
         <span class="mi-cat">${m.category}</span>
         ${!m.available?'<span class="mi-cat" style="background:#fee2e2;color:#991b1b;margin-left:4px">UNAVAILABLE</span>':''}
         <div class="mi-actions">
-          <button class="mi-btn edit" onclick='editItem(${JSON.stringify(m).replace(/'/g,"&#39;")})'>Edit</button>
-          <button class="mi-btn toggle" onclick="toggleItem(${m.id},${!m.available})">${m.available?'Disable':'Enable'}</button>
-          <button class="mi-btn delete" onclick="deleteItem(${m.id})">Delete</button>
+          <button class="mi-btn edit" onclick='editItem(${JSON.stringify(m).replace(/'/g,"&#39;")})'>${t('btn_edit')}</button>
+          <button class="mi-btn toggle" onclick="toggleItem(${m.id},${!m.available})">${m.available?t('btn_disable'):t('btn_enable')}</button>
+          <button class="mi-btn delete" onclick="deleteItem(${m.id})">${t('btn_delete')}</button>
         </div>
       </div>
     </div>
@@ -472,7 +703,7 @@ function renderMenuEditor(){
 }
 
 function openMenuModal(item){
-  document.getElementById("modalTitle").textContent=item?"Edit Menu Item":"Add Menu Item";
+  document.getElementById("modalTitle").textContent=item?t("modal_edit_menu"):t("modal_add_menu");
   document.getElementById("editId").value=item?item.id:"";
   document.getElementById("f_name").value=item?item.name:"";
   document.getElementById("f_nameTh").value=item?item.nameTh:"";
@@ -503,14 +734,13 @@ async function saveMenuItem(){
     description:document.getElementById("f_desc").value,
     image:document.getElementById("f_image").value,
   };
-  if(!body.name||!body.price){alert("Name and price are required");return}
+  if(!body.name||!body.price){alert(t("alert_name_price"));return}
   if(id){
     await fetch(`/api/menu/${id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
   }else{
     await fetch("/api/menu",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
   }
   closeMenuModal();
-  // Refresh
   const r=await fetch("/api/menu/all");allMenu=await r.json();renderMenuEditor();
 }
 
@@ -520,15 +750,91 @@ async function toggleItem(id,avail){
 }
 
 async function deleteItem(id){
-  if(!confirm("Delete this menu item?"))return;
+  if(!confirm(t("confirm_delete_menu")))return;
   await fetch(`/api/menu/${id}`,{method:"DELETE"});
   const r=await fetch("/api/menu/all");allMenu=await r.json();renderMenuEditor();
 }
 
-// Close modal on bg click
+// Close modals on bg click
 document.getElementById("menuModal").addEventListener("click",function(e){if(e.target===this)closeMenuModal()});
 document.getElementById("staffModal").addEventListener("click",function(e){if(e.target===this)closeStaffModal()});
 document.getElementById("payModal").addEventListener("click",function(e){if(e.target===this)closePayModal()});
+document.getElementById("roomModal").addEventListener("click",function(e){if(e.target===this)closeRoomModal()});
+
+// ── Rooms Management ──
+function renderRoomGrid(){
+  if(!allRooms.length){document.getElementById("roomGrid").innerHTML=`<div style="color:#ccc;padding:40px;text-align:center;grid-column:1/-1">${t('dash_no_data')}</div>`;return}
+  document.getElementById("roomGrid").innerHTML=allRooms.map(r=>`
+    <div class="mi-card ${r.available?'':'unavailable'}">
+      ${r.image?`<img src="${r.image}" class="mi-img">`:`<div class="mi-img" style="display:flex;align-items:center;justify-content:center;color:#ccc;font-size:32px">&#127968;</div>`}
+      <div class="mi-body">
+        <h4>${r.name}</h4>
+        <div class="mi-th">${r.nameTh||''}</div>
+        <div class="mi-desc">${r.description||''}</div>
+        <div class="mi-price">฿${r.price.toLocaleString()} <span style="font-size:12px;font-weight:400;color:var(--dim)">${t('room_per_night')}</span></div>
+        ${r.amenities?`<div style="margin-top:6px;font-size:11px;color:var(--dim)">${r.amenities}</div>`:''}
+        ${r.bookingUrl?`<div style="margin-top:4px;font-size:11px;color:var(--blue);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.bookingUrl}</div>`:''}
+        <div style="margin-top:8px">
+          <button class="room-avail ${r.available?'on':'off'}" onclick="toggleRoom(${r.id},${!r.available})">${r.available?t('room_available'):t('room_unavailable')}</button>
+        </div>
+        <div class="mi-actions">
+          <button class="mi-btn edit" onclick='openRoomModal(${JSON.stringify(r).replace(/'/g,"&#39;")})'>${t('btn_edit')}</button>
+          <button class="mi-btn delete" onclick="deleteRoom(${r.id})">${t('btn_delete')}</button>
+        </div>
+      </div>
+    </div>
+  `).join("");
+}
+
+function openRoomModal(room){
+  document.getElementById("roomModalTitle").textContent=room?t("modal_edit_room"):t("modal_add_room");
+  document.getElementById("r_editId").value=room?room.id:"";
+  document.getElementById("r_name").value=room?room.name:"";
+  document.getElementById("r_nameTh").value=room?room.nameTh:"";
+  document.getElementById("r_desc").value=room?room.description:"";
+  document.getElementById("r_descTh").value=room?room.descriptionTh:"";
+  document.getElementById("r_price").value=room?room.price:"";
+  document.getElementById("r_image").value=room?room.image:"";
+  document.getElementById("r_bookingUrl").value=room?room.bookingUrl:"";
+  document.getElementById("r_amenities").value=room?room.amenities:"";
+  document.getElementById("r_amenitiesTh").value=room?room.amenitiesTh:"";
+  document.getElementById("roomModal").classList.add("show");
+}
+function closeRoomModal(){document.getElementById("roomModal").classList.remove("show")}
+
+async function saveRoom(){
+  const id=document.getElementById("r_editId").value;
+  const body={
+    name:document.getElementById("r_name").value,
+    nameTh:document.getElementById("r_nameTh").value,
+    description:document.getElementById("r_desc").value,
+    descriptionTh:document.getElementById("r_descTh").value,
+    price:parseInt(document.getElementById("r_price").value)||0,
+    image:document.getElementById("r_image").value,
+    bookingUrl:document.getElementById("r_bookingUrl").value,
+    amenities:document.getElementById("r_amenities").value,
+    amenitiesTh:document.getElementById("r_amenitiesTh").value,
+  };
+  if(!body.name||!body.price){alert(t("alert_room_name_price"));return}
+  if(id){
+    await fetch(`/api/rooms/${id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  }else{
+    await fetch("/api/rooms",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  }
+  closeRoomModal();
+  const r=await fetch("/api/rooms/all");allRooms=await r.json();renderRoomGrid();
+}
+
+async function toggleRoom(id,avail){
+  await fetch(`/api/rooms/${id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({available:avail})});
+  const r=await fetch("/api/rooms/all");allRooms=await r.json();renderRoomGrid();
+}
+
+async function deleteRoom(id){
+  if(!confirm(t("confirm_delete_room")))return;
+  await fetch(`/api/rooms/${id}`,{method:"DELETE"});
+  const r=await fetch("/api/rooms/all");allRooms=await r.json();renderRoomGrid();
+}
 
 // ── QR Codes ──
 function renderQRs(){
@@ -551,9 +857,9 @@ async function loadFinancials(){
 
   // Stats row
   document.getElementById("finStats").innerHTML=`
-    <div class="stat-card gold"><div class="label">Revenue</div><div class="val">฿${d.revenue.toLocaleString()}</div><div class="sub">${d.orderCount} orders</div></div>
-    <div class="stat-card"><div class="label">Expenses (Payroll)</div><div class="val" style="color:var(--red)">฿${d.expenses.toLocaleString()}</div><div class="sub">${d.staffCount} active staff</div></div>
-    <div class="stat-card ${d.profit>=0?'green':''}"><div class="label">Net Profit</div><div class="val" style="color:${d.profit>=0?'var(--green)':'var(--red)'}">฿${d.profit.toLocaleString()}</div><div class="sub">Avg order ฿${d.avgOrderValue}</div></div>
+    <div class="stat-card gold"><div class="label">${t('fin_revenue')}</div><div class="val">฿${d.revenue.toLocaleString()}</div><div class="sub">${d.orderCount} ${t('fin_orders')}</div></div>
+    <div class="stat-card"><div class="label">${t('fin_expenses')}</div><div class="val" style="color:var(--red)">฿${d.expenses.toLocaleString()}</div><div class="sub">${d.staffCount} ${t('fin_active_staff')}</div></div>
+    <div class="stat-card ${d.profit>=0?'green':''}"><div class="label">${t('fin_profit')}</div><div class="val" style="color:${d.profit>=0?'var(--green)':'var(--red)'}">฿${d.profit.toLocaleString()}</div><div class="sub">${t('fin_avg_order')} ฿${d.avgOrderValue}</div></div>
   `;
 
   // Daily chart
@@ -565,15 +871,15 @@ async function loadFinancials(){
       return`<div class="bar-col"><div class="bar-val">${x.revenue>0?'฿'+x.revenue:''}</div><div class="bar" style="height:${h}px"></div><div class="bar-label">${day}</div></div>`;
     }).join("");
   }else{
-    document.getElementById("finChart").innerHTML='<div style="color:#ccc;padding:40px;text-align:center">No revenue data this month</div>';
+    document.getElementById("finChart").innerHTML=`<div style="color:#ccc;padding:40px;text-align:center">${t('fin_no_data')}</div>`;
   }
 
   // P&L summary
   document.getElementById("plSummary").innerHTML=`
-    <div class="pl-row"><span>Total Revenue</span><span class="positive">฿${d.revenue.toLocaleString()}</span></div>
-    <div class="pl-row"><span>Staff Payroll</span><span class="negative">-฿${d.payroll.toLocaleString()}</span></div>
-    <div class="pl-row total"><span>Net Profit</span><span class="${d.profit>=0?'positive':'negative'}">฿${d.profit.toLocaleString()}</span></div>
-    <div style="margin-top:12px;font-size:12px;color:var(--dim)">Month: ${d.month} &bull; Staff: ${d.staffCount}</div>
+    <div class="pl-row"><span>${t('fin_total_rev')}</span><span class="positive">฿${d.revenue.toLocaleString()}</span></div>
+    <div class="pl-row"><span>${t('fin_payroll')}</span><span class="negative">-฿${d.payroll.toLocaleString()}</span></div>
+    <div class="pl-row total"><span>${t('fin_net')}</span><span class="${d.profit>=0?'positive':'negative'}">฿${d.profit.toLocaleString()}</span></div>
+    <div style="margin-top:12px;font-size:12px;color:var(--dim)">${t('fin_month')} ${d.month} &bull; ${t('th_staff')}: ${d.staffCount}</div>
   `;
 }
 
@@ -586,14 +892,14 @@ async function loadStaff(){
 }
 
 function renderStaff(){
-  if(!allStaff.length){document.getElementById("staffBody").innerHTML=`<tr><td colspan="4" style="text-align:center;color:#ccc;padding:30px">No staff members</td></tr>`;document.getElementById("totalPayroll").textContent="฿0";return}
+  if(!allStaff.length){document.getElementById("staffBody").innerHTML=`<tr><td colspan="4" style="text-align:center;color:#ccc;padding:30px">${t('no_staff')}</td></tr>`;document.getElementById("totalPayroll").textContent="฿0";return}
   document.getElementById("staffBody").innerHTML=allStaff.filter(s=>s.status==="active").map(s=>`<tr>
     <td><strong>${s.name}</strong></td>
     <td>${s.role}</td>
     <td>฿${s.salary.toLocaleString()}</td>
     <td>
-      <button class="act-btn c-blue" onclick='openStaffModal(${JSON.stringify(s).replace(/'/g,"&#39;")})'>Edit</button>
-      <button class="act-btn c-red" onclick="deleteStaff(${s.id})">Delete</button>
+      <button class="act-btn c-blue" onclick='openStaffModal(${JSON.stringify(s).replace(/'/g,"&#39;")})'>${t('btn_edit')}</button>
+      <button class="act-btn c-red" onclick="deleteStaff(${s.id})">${t('btn_delete')}</button>
     </td>
   </tr>`).join("");
   const total=allStaff.filter(s=>s.status==="active").reduce((sum,s)=>sum+s.salary,0);
@@ -601,7 +907,7 @@ function renderStaff(){
 }
 
 function openStaffModal(s){
-  document.getElementById("staffModalTitle").textContent=s?"Edit Staff":"Add Staff Member";
+  document.getElementById("staffModalTitle").textContent=s?t("modal_edit_staff"):t("modal_add_staff");
   document.getElementById("s_editId").value=s?s.id:"";
   document.getElementById("s_name").value=s?s.name:"";
   document.getElementById("s_role").value=s?s.role:"";
@@ -613,7 +919,7 @@ function closeStaffModal(){document.getElementById("staffModal").classList.remov
 async function saveStaff(){
   const id=document.getElementById("s_editId").value;
   const body={name:document.getElementById("s_name").value,role:document.getElementById("s_role").value,salary:parseInt(document.getElementById("s_salary").value)||0};
-  if(!body.name||!body.role){alert("Name and role are required");return}
+  if(!body.name||!body.role){alert(t("alert_name_role"));return}
   if(id){
     await fetch(`/api/staff/${id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
   }else{
@@ -624,7 +930,7 @@ async function saveStaff(){
 }
 
 async function deleteStaff(id){
-  if(!confirm("Delete this staff member?"))return;
+  if(!confirm(t("confirm_delete_staff")))return;
   await fetch(`/api/staff/${id}`,{method:"DELETE"});
   loadStaff();
 }
@@ -634,7 +940,7 @@ async function loadPayLogs(){
   const month=document.getElementById("payMonth").value;
   const q=month?"?month="+month:"";
   const r=await fetch("/api/paylogs"+q);const logs=await r.json();
-  if(!logs.length){document.getElementById("payBody").innerHTML=`<tr><td colspan="5" style="text-align:center;color:#ccc;padding:30px">No payments recorded</td></tr>`;document.getElementById("totalPaid").textContent="฿0";return}
+  if(!logs.length){document.getElementById("payBody").innerHTML=`<tr><td colspan="5" style="text-align:center;color:#ccc;padding:30px">${t('no_payments')}</td></tr>`;document.getElementById("totalPaid").textContent="฿0";return}
   document.getElementById("payBody").innerHTML=logs.map(p=>`<tr>
     <td>${p.date}</td>
     <td><strong>${p.staffName}</strong></td>
@@ -647,7 +953,6 @@ async function loadPayLogs(){
 }
 
 function openPayModal(){
-  // Populate staff dropdown
   const sel=document.getElementById("p_staff");
   sel.innerHTML=allStaff.filter(s=>s.status==="active").map(s=>`<option value="${s.id}" data-name="${s.name}">${s.name} — ${s.role}</option>`).join("");
   document.getElementById("p_amount").value="";
@@ -669,14 +974,14 @@ async function savePayLog(){
     date:document.getElementById("p_date").value,
     note:document.getElementById("p_note").value,
   };
-  if(!body.amount){alert("Amount is required");return}
+  if(!body.amount){alert(t("alert_amount"));return}
   await fetch("/api/paylogs",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
   closePayModal();
   loadPayLogs();
 }
 
 async function deletePayLog(id){
-  if(!confirm("Delete this pay record?"))return;
+  if(!confirm(t("confirm_delete_pay")))return;
   await fetch(`/api/paylogs/${id}`,{method:"DELETE"});
   loadPayLogs();
 }
@@ -684,7 +989,8 @@ async function deletePayLog(id){
 // Set default QR base URL
 document.getElementById("qrBaseUrl").value=window.location.origin;
 
-// Initial stats load
+// Apply saved language and load
+setAdminLang(adminLang);
 setTimeout(loadStats,500);
 </script>
 </body>
