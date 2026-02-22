@@ -77,6 +77,16 @@
     .modal-total{display:flex;justify-content:space-between;padding:14px 0;font-size:18px;font-weight:700;border-top:2px solid var(--dark);margin-top:8px}
     .modal-total .tp{color:var(--ocean)}
     .notes-ta{width:100%;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;resize:none;margin:10px 0}
+    /* Spicy & Allergy */
+    .pref-section{margin:12px 0;padding:12px;background:#faf8f4;border-radius:8px}
+    .pref-section h4{font-size:13px;font-weight:600;margin-bottom:8px;color:var(--dark)}
+    .spicy-row{display:flex;gap:6px}
+    .spicy-btn{flex:1;padding:8px 4px;border:1.5px solid var(--border);border-radius:6px;background:white;font-size:12px;cursor:pointer;text-align:center;transition:.2s;font-weight:500}
+    .spicy-btn.active{border-color:var(--sand);background:#fff8ee}
+    .spicy-btn .icon{font-size:16px;display:block;margin-bottom:2px}
+    .allergy-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+    .allergy-tag{padding:6px 12px;border:1.5px solid var(--border);border-radius:16px;font-size:11px;cursor:pointer;background:white;transition:.2s;font-weight:500}
+    .allergy-tag.active{border-color:#c62828;background:#fff0f0;color:#c62828}
     .order-btn{width:100%;padding:15px;background:var(--success);color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:6px}
     .order-btn:disabled{background:#ccc;cursor:not-allowed}
 
@@ -127,6 +137,28 @@
     <h2 data-i18n="your_order">Your Order</h2>
     <div id="cartItems"></div>
     <div class="modal-total"><span data-i18n="total">Total</span><span class="tp" id="modalTotal">฿0</span></div>
+    <div class="pref-section">
+      <h4 data-i18n="spicy_label">Spicy Level</h4>
+      <div class="spicy-row">
+        <button class="spicy-btn active" onclick="setSpicy(0)"><span class="icon">&#10005;</span><span data-i18n="spicy_0">None</span></button>
+        <button class="spicy-btn" onclick="setSpicy(1)"><span class="icon">&#127798;</span><span data-i18n="spicy_1">Mild</span></button>
+        <button class="spicy-btn" onclick="setSpicy(2)"><span class="icon">&#127798;&#127798;</span><span data-i18n="spicy_2">Medium</span></button>
+        <button class="spicy-btn" onclick="setSpicy(3)"><span class="icon">&#127798;&#127798;&#127798;</span><span data-i18n="spicy_3">Hot</span></button>
+        <button class="spicy-btn" onclick="setSpicy(4)"><span class="icon">&#128293;</span><span data-i18n="spicy_4">Thai Hot</span></button>
+      </div>
+    </div>
+    <div class="pref-section">
+      <h4 data-i18n="allergy_label">Allergies (if any)</h4>
+      <div class="allergy-grid">
+        <span class="allergy-tag" onclick="toggleAllergy(this,'Shellfish')" data-i18n="a_shellfish">&#129424; Shellfish</span>
+        <span class="allergy-tag" onclick="toggleAllergy(this,'Peanuts')" data-i18n="a_peanuts">&#129372; Peanuts</span>
+        <span class="allergy-tag" onclick="toggleAllergy(this,'Gluten')" data-i18n="a_gluten">&#127854; Gluten</span>
+        <span class="allergy-tag" onclick="toggleAllergy(this,'Dairy')" data-i18n="a_dairy">&#129371; Dairy</span>
+        <span class="allergy-tag" onclick="toggleAllergy(this,'Eggs')" data-i18n="a_eggs">&#129370; Eggs</span>
+        <span class="allergy-tag" onclick="toggleAllergy(this,'Soy')" data-i18n="a_soy">&#127813; Soy</span>
+        <span class="allergy-tag" onclick="toggleAllergy(this,'Seafood')" data-i18n="a_seafood">&#128031; Seafood</span>
+      </div>
+    </div>
     <textarea class="notes-ta" id="orderNotes" rows="2" placeholder="Special instructions..."></textarea>
     <button class="order-btn" id="placeBtn" onclick="placeOrder()" data-i18n="place_order">Place Order</button>
   </div>
@@ -142,7 +174,7 @@
 </div>
 
 <script>
-let menu=[],cart={},lang="en",activeCat="all";
+let menu=[],cart={},lang="en",activeCat="all",spicyLevel=0,allergies=new Set();
 const langKeys={en:"name",th:"nameTh",zh:"nameZh",ru:"nameRu",ko:"nameKo",ja:"nameJa"};
 
 const catLabels={
@@ -256,19 +288,22 @@ function openCart(){
 }
 function closeCart(){document.getElementById("cartModal").classList.remove("show")}
 
+function setSpicy(n){spicyLevel=n;document.querySelectorAll(".spicy-btn").forEach((b,i)=>b.classList.toggle("active",i===n))}
+function toggleAllergy(el,name){el.classList.toggle("active");if(allergies.has(name))allergies.delete(name);else allergies.add(name)}
+
 async function placeOrder(){
   if(!tsel.value){alert(lang==="th"?"กรุณาเลือกโต๊ะ":"Please select your table");closeCart();return}
   const btn=document.getElementById("placeBtn");btn.disabled=true;btn.textContent="...";
   const items=Object.entries(cart).map(([id,qty])=>{const i=menu.find(m=>m.id===+id);return{id:i.id,name:i.name,price:i.price,quantity:qty}});
   try{
-    const r=await fetch("/api/orders",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({tableNumber:+tsel.value,items,notes:document.getElementById("orderNotes").value})});
+    const r=await fetch("/api/orders",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({tableNumber:+tsel.value,items,notes:document.getElementById("orderNotes").value,spicyLevel,allergies:[...allergies]})});
     const d=await r.json();
     closeCart();document.getElementById("orderId").textContent=`#${d.orderId}`;document.getElementById("successScreen").classList.add("show");
   }catch(e){alert("Failed. Try again.")}
   btn.disabled=false;btn.textContent=ui[lang].place_order;
 }
 
-function resetOrder(){cart={};document.getElementById("orderNotes").value="";document.getElementById("successScreen").classList.remove("show");renderMenu();updateCart()}
+function resetOrder(){cart={};spicyLevel=0;allergies.clear();document.querySelectorAll(".spicy-btn").forEach((b,i)=>b.classList.toggle("active",i===0));document.querySelectorAll(".allergy-tag").forEach(t=>t.classList.remove("active"));document.getElementById("orderNotes").value="";document.getElementById("successScreen").classList.remove("show");renderMenu();updateCart()}
 document.getElementById("cartModal").addEventListener("click",function(e){if(e.target===this)closeCart()});
 </script>
 </body>

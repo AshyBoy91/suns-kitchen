@@ -118,9 +118,29 @@
     .mbtn.cancel{background:#f3f4f6;color:var(--dim)}
     .add-btn{padding:10px 20px;background:var(--sand);color:var(--dark);border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:16px}
 
+    /* QR code cards */
+    .qr-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
+    .qr-card img{width:160px;height:160px;margin:0 auto 10px}
+    .qr-card h4{font-size:16px;margin-bottom:4px}
+    .qr-card p{font-size:11px;color:var(--dim);word-break:break-all}
+
+    /* P&L rows */
+    .pl-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f3f4f6;font-size:14px}
+    .pl-row:last-child{border:none}
+    .pl-row.total{font-weight:700;font-size:16px;border-top:2px solid var(--border);margin-top:6px;padding-top:14px}
+    .pl-row .positive{color:var(--green)}
+    .pl-row .negative{color:var(--red)}
+
+    @media print{
+      .sidebar,.top,.filters,.ctrl-row{display:none!important}
+      .main{padding:0;max-width:100%}
+      .qr-card{break-inside:avoid;border:2px solid #000;page-break-inside:avoid}
+    }
+
     @media(max-width:768px){
       .sidebar{display:none}
       .chart-row{grid-template-columns:1fr}
+      #pg-staff>div>div:first-child>div{grid-template-columns:1fr}
     }
   </style>
 </head>
@@ -134,6 +154,9 @@
       <div class="sb-item active" onclick="showPage('dashboard')"><span class="sb-icon">&#128202;</span>Dashboard</div>
       <div class="sb-item" onclick="showPage('orders')"><span class="sb-icon">&#128203;</span>Orders</div>
       <div class="sb-item" onclick="showPage('menu-editor')"><span class="sb-icon">&#127860;</span>Menu Editor</div>
+      <div class="sb-item" onclick="showPage('qr-codes')"><span class="sb-icon">&#128242;</span>QR Codes</div>
+      <div class="sb-item" onclick="showPage('financials')"><span class="sb-icon">&#128176;</span>Financials</div>
+      <div class="sb-item" onclick="showPage('staff')"><span class="sb-icon">&#128101;</span>Staff & Payroll</div>
       <div class="sb-item" onclick="window.open('/kitchen','_blank')"><span class="sb-icon">&#127859;</span>Kitchen View</div>
       <div class="sb-item" onclick="window.open('/','_blank')"><span class="sb-icon">&#127968;</span>Website</div>
     </div>
@@ -203,6 +226,78 @@
       <div class="menu-grid" id="menuGrid"></div>
     </div>
 
+    <!-- QR CODES -->
+    <div class="page" id="pg-qr-codes">
+      <h2 style="margin-bottom:8px">QR Codes for Tables</h2>
+      <p style="color:var(--dim);margin-bottom:20px;font-size:14px">Print these QR codes and place them on each table. Customers scan to see the menu with their table pre-selected.</p>
+      <div class="ctrl-row">
+        <label style="font-size:13px;font-weight:600">Base URL:</label>
+        <input type="text" id="qrBaseUrl" value="" placeholder="https://your-domain.com" style="flex:1" oninput="renderQRs()">
+        <button class="ctrl-btn" onclick="printQRs()" style="background:var(--dark);color:white;border-color:var(--dark)">&#128424; Print All</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px" id="qrGrid"></div>
+    </div>
+
+    <!-- FINANCIALS -->
+    <div class="page" id="pg-financials">
+      <h2 style="margin-bottom:20px">Financial Overview</h2>
+      <div class="ctrl-row">
+        <label style="font-size:13px;font-weight:600">Month:</label>
+        <input type="month" id="finMonth" onchange="loadFinancials()">
+      </div>
+      <div class="stats-row" id="finStats"></div>
+      <div class="chart-row">
+        <div class="chart-card">
+          <h3>Daily Revenue This Month</h3>
+          <div class="bar-chart" id="finChart" style="height:160px"></div>
+        </div>
+        <div class="chart-card">
+          <h3>Profit & Loss Summary</h3>
+          <div id="plSummary"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STAFF & PAYROLL -->
+    <div class="page" id="pg-staff">
+      <h2 style="margin-bottom:20px">Staff & Payroll</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <!-- Staff list -->
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <h3 style="font-size:16px">Staff Members</h3>
+            <button class="add-btn" style="margin:0;font-size:12px;padding:8px 14px" onclick="openStaffModal()">+ Add Staff</button>
+          </div>
+          <table>
+            <thead><tr><th>Name</th><th>Role</th><th>Salary</th><th>Actions</th></tr></thead>
+            <tbody id="staffBody"></tbody>
+          </table>
+          <div style="margin-top:12px;padding:14px;background:var(--card);border:1px solid var(--border);border-radius:8px">
+            <div style="font-size:12px;color:var(--dim)">Total Monthly Payroll</div>
+            <div style="font-size:24px;font-weight:700;color:var(--sand)" id="totalPayroll">฿0</div>
+          </div>
+        </div>
+        <!-- Pay logs -->
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <h3 style="font-size:16px">Pay Logs</h3>
+            <button class="add-btn" style="margin:0;font-size:12px;padding:8px 14px" onclick="openPayModal()">+ Add Payment</button>
+          </div>
+          <div class="ctrl-row" style="margin-bottom:10px">
+            <input type="month" id="payMonth" onchange="loadPayLogs()">
+          </div>
+          <table>
+            <thead><tr><th>Date</th><th>Staff</th><th>Type</th><th>Amount</th><th></th></tr></thead>
+            <tbody id="payBody"></tbody>
+          </table>
+          <div style="margin-top:12px;padding:14px;background:var(--card);border:1px solid var(--border);border-radius:8px">
+            <div style="font-size:12px;color:var(--dim)">Total Paid This Month</div>
+            <div style="font-size:24px;font-weight:700;color:var(--red)" id="totalPaid">฿0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -234,6 +329,43 @@
   </div>
 </div>
 
+<!-- Staff Modal -->
+<div class="modal-overlay" id="staffModal">
+  <div class="modal-form">
+    <h3 id="staffModalTitle">Add Staff Member</h3>
+    <input type="hidden" id="s_editId">
+    <div class="fg"><label>Name *</label><input id="s_name"></div>
+    <div class="fg-row">
+      <div class="fg"><label>Role *</label><input id="s_role" placeholder="e.g. Waitress, Chef"></div>
+      <div class="fg"><label>Monthly Salary (฿) *</label><input type="number" id="s_salary"></div>
+    </div>
+    <div class="modal-btns">
+      <button class="mbtn cancel" onclick="closeStaffModal()">Cancel</button>
+      <button class="mbtn save" onclick="saveStaff()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Pay Log Modal -->
+<div class="modal-overlay" id="payModal">
+  <div class="modal-form">
+    <h3>Record Payment</h3>
+    <div class="fg"><label>Staff Member *</label><select id="p_staff"></select></div>
+    <div class="fg-row">
+      <div class="fg"><label>Amount (฿) *</label><input type="number" id="p_amount"></div>
+      <div class="fg"><label>Type</label><select id="p_type"><option value="salary">Salary</option><option value="bonus">Bonus</option><option value="advance">Advance</option><option value="overtime">Overtime</option></select></div>
+    </div>
+    <div class="fg-row">
+      <div class="fg"><label>Date</label><input type="date" id="p_date"></div>
+      <div class="fg"><label>Note</label><input id="p_note" placeholder="Optional note"></div>
+    </div>
+    <div class="modal-btns">
+      <button class="mbtn cancel" onclick="closePayModal()">Cancel</button>
+      <button class="mbtn save" onclick="savePayLog()">Save</button>
+    </div>
+  </div>
+</div>
+
 <script>
 let allOrders=[],allMenu=[],orderFilter="all";
 const today=new Date().toISOString().split("T")[0];
@@ -254,6 +386,9 @@ function showPage(id){
   document.querySelectorAll(".sb-item").forEach(s=>s.classList.remove("active"));
   document.querySelectorAll(".sb-item").forEach(s=>{if(s.textContent.toLowerCase().includes(id.split("-")[0]))s.classList.add("active")});
   if(id==="dashboard")loadStats();
+  if(id==="qr-codes")renderQRs();
+  if(id==="financials"){if(!document.getElementById("finMonth").value)document.getElementById("finMonth").value=new Date().toISOString().slice(0,7);loadFinancials()}
+  if(id==="staff"){if(!document.getElementById("payMonth").value)document.getElementById("payMonth").value=new Date().toISOString().slice(0,7);loadStaff();loadPayLogs()}
 }
 
 function renderAll(){renderOrders();renderMenuEditor();loadStats()}
@@ -392,6 +527,162 @@ async function deleteItem(id){
 
 // Close modal on bg click
 document.getElementById("menuModal").addEventListener("click",function(e){if(e.target===this)closeMenuModal()});
+document.getElementById("staffModal").addEventListener("click",function(e){if(e.target===this)closeStaffModal()});
+document.getElementById("payModal").addEventListener("click",function(e){if(e.target===this)closePayModal()});
+
+// ── QR Codes ──
+function renderQRs(){
+  const base=document.getElementById("qrBaseUrl").value||window.location.origin;
+  let html="";
+  for(let t=1;t<=20;t++){
+    const url=base+"/menu?table="+t;
+    const qrSrc="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data="+encodeURIComponent(url);
+    html+=`<div class="qr-card"><img src="${qrSrc}" alt="Table ${t} QR"><h4>Table ${t}</h4><p>${url}</p></div>`;
+  }
+  document.getElementById("qrGrid").innerHTML=html;
+}
+function printQRs(){window.print()}
+
+// ── Financials ──
+async function loadFinancials(){
+  const month=document.getElementById("finMonth").value;
+  const q=month?"?month="+month:"";
+  const r=await fetch("/api/financials"+q);const d=await r.json();
+
+  // Stats row
+  document.getElementById("finStats").innerHTML=`
+    <div class="stat-card gold"><div class="label">Revenue</div><div class="val">฿${d.revenue.toLocaleString()}</div><div class="sub">${d.orderCount} orders</div></div>
+    <div class="stat-card"><div class="label">Expenses (Payroll)</div><div class="val" style="color:var(--red)">฿${d.expenses.toLocaleString()}</div><div class="sub">${d.staffCount} active staff</div></div>
+    <div class="stat-card ${d.profit>=0?'green':''}"><div class="label">Net Profit</div><div class="val" style="color:${d.profit>=0?'var(--green)':'var(--red)'}">฿${d.profit.toLocaleString()}</div><div class="sub">Avg order ฿${d.avgOrderValue}</div></div>
+  `;
+
+  // Daily chart
+  if(d.dailyData.length){
+    const maxR=Math.max(...d.dailyData.map(x=>x.revenue),1);
+    document.getElementById("finChart").innerHTML=d.dailyData.map(x=>{
+      const h=Math.max(2,(x.revenue/maxR)*140);
+      const day=new Date(x.date).getDate();
+      return`<div class="bar-col"><div class="bar-val">${x.revenue>0?'฿'+x.revenue:''}</div><div class="bar" style="height:${h}px"></div><div class="bar-label">${day}</div></div>`;
+    }).join("");
+  }else{
+    document.getElementById("finChart").innerHTML='<div style="color:#ccc;padding:40px;text-align:center">No revenue data this month</div>';
+  }
+
+  // P&L summary
+  document.getElementById("plSummary").innerHTML=`
+    <div class="pl-row"><span>Total Revenue</span><span class="positive">฿${d.revenue.toLocaleString()}</span></div>
+    <div class="pl-row"><span>Staff Payroll</span><span class="negative">-฿${d.payroll.toLocaleString()}</span></div>
+    <div class="pl-row total"><span>Net Profit</span><span class="${d.profit>=0?'positive':'negative'}">฿${d.profit.toLocaleString()}</span></div>
+    <div style="margin-top:12px;font-size:12px;color:var(--dim)">Month: ${d.month} &bull; Staff: ${d.staffCount}</div>
+  `;
+}
+
+// ── Staff & Payroll ──
+let allStaff=[];
+
+async function loadStaff(){
+  const r=await fetch("/api/staff");allStaff=await r.json();
+  renderStaff();
+}
+
+function renderStaff(){
+  if(!allStaff.length){document.getElementById("staffBody").innerHTML=`<tr><td colspan="4" style="text-align:center;color:#ccc;padding:30px">No staff members</td></tr>`;document.getElementById("totalPayroll").textContent="฿0";return}
+  document.getElementById("staffBody").innerHTML=allStaff.filter(s=>s.status==="active").map(s=>`<tr>
+    <td><strong>${s.name}</strong></td>
+    <td>${s.role}</td>
+    <td>฿${s.salary.toLocaleString()}</td>
+    <td>
+      <button class="act-btn c-blue" onclick='openStaffModal(${JSON.stringify(s).replace(/'/g,"&#39;")})'>Edit</button>
+      <button class="act-btn c-red" onclick="deleteStaff(${s.id})">Delete</button>
+    </td>
+  </tr>`).join("");
+  const total=allStaff.filter(s=>s.status==="active").reduce((sum,s)=>sum+s.salary,0);
+  document.getElementById("totalPayroll").textContent="฿"+total.toLocaleString();
+}
+
+function openStaffModal(s){
+  document.getElementById("staffModalTitle").textContent=s?"Edit Staff":"Add Staff Member";
+  document.getElementById("s_editId").value=s?s.id:"";
+  document.getElementById("s_name").value=s?s.name:"";
+  document.getElementById("s_role").value=s?s.role:"";
+  document.getElementById("s_salary").value=s?s.salary:"";
+  document.getElementById("staffModal").classList.add("show");
+}
+function closeStaffModal(){document.getElementById("staffModal").classList.remove("show")}
+
+async function saveStaff(){
+  const id=document.getElementById("s_editId").value;
+  const body={name:document.getElementById("s_name").value,role:document.getElementById("s_role").value,salary:parseInt(document.getElementById("s_salary").value)||0};
+  if(!body.name||!body.role){alert("Name and role are required");return}
+  if(id){
+    await fetch(`/api/staff/${id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  }else{
+    await fetch("/api/staff",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  }
+  closeStaffModal();
+  loadStaff();
+}
+
+async function deleteStaff(id){
+  if(!confirm("Delete this staff member?"))return;
+  await fetch(`/api/staff/${id}`,{method:"DELETE"});
+  loadStaff();
+}
+
+// Pay Logs
+async function loadPayLogs(){
+  const month=document.getElementById("payMonth").value;
+  const q=month?"?month="+month:"";
+  const r=await fetch("/api/paylogs"+q);const logs=await r.json();
+  if(!logs.length){document.getElementById("payBody").innerHTML=`<tr><td colspan="5" style="text-align:center;color:#ccc;padding:30px">No payments recorded</td></tr>`;document.getElementById("totalPaid").textContent="฿0";return}
+  document.getElementById("payBody").innerHTML=logs.map(p=>`<tr>
+    <td>${p.date}</td>
+    <td><strong>${p.staffName}</strong></td>
+    <td><span class="badge ${p.type==='salary'?'ready':p.type==='bonus'?'preparing':'new'}">${p.type}</span></td>
+    <td>฿${p.amount.toLocaleString()}</td>
+    <td><button class="act-btn c-red" onclick="deletePayLog(${p.id})">&#10005;</button></td>
+  </tr>`).join("");
+  const total=logs.reduce((s,p)=>s+p.amount,0);
+  document.getElementById("totalPaid").textContent="฿"+total.toLocaleString();
+}
+
+function openPayModal(){
+  // Populate staff dropdown
+  const sel=document.getElementById("p_staff");
+  sel.innerHTML=allStaff.filter(s=>s.status==="active").map(s=>`<option value="${s.id}" data-name="${s.name}">${s.name} — ${s.role}</option>`).join("");
+  document.getElementById("p_amount").value="";
+  document.getElementById("p_type").value="salary";
+  document.getElementById("p_date").value=new Date().toISOString().split("T")[0];
+  document.getElementById("p_note").value="";
+  document.getElementById("payModal").classList.add("show");
+}
+function closePayModal(){document.getElementById("payModal").classList.remove("show")}
+
+async function savePayLog(){
+  const sel=document.getElementById("p_staff");
+  const opt=sel.options[sel.selectedIndex];
+  const body={
+    staffId:parseInt(sel.value),
+    staffName:opt?opt.getAttribute("data-name"):"",
+    amount:parseInt(document.getElementById("p_amount").value)||0,
+    type:document.getElementById("p_type").value,
+    date:document.getElementById("p_date").value,
+    note:document.getElementById("p_note").value,
+  };
+  if(!body.amount){alert("Amount is required");return}
+  await fetch("/api/paylogs",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  closePayModal();
+  loadPayLogs();
+}
+
+async function deletePayLog(id){
+  if(!confirm("Delete this pay record?"))return;
+  await fetch(`/api/paylogs/${id}`,{method:"DELETE"});
+  loadPayLogs();
+}
+
+// Set default QR base URL
+document.getElementById("qrBaseUrl").value=window.location.origin;
 
 // Initial stats load
 setTimeout(loadStats,500);

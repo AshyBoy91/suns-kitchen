@@ -40,6 +40,22 @@ let menuItems = [
 let orders = [];
 let orderIdCounter = 1;
 
+// Staff & Payroll
+let staff = [
+  { id: 1, name: "Somchai", role: "Head Chef", salary: 25000, status: "active" },
+  { id: 2, name: "Narin", role: "Sous Chef", salary: 18000, status: "active" },
+  { id: 3, name: "Ploy", role: "Waitress", salary: 12000, status: "active" },
+  { id: 4, name: "Tong", role: "Waiter", salary: 12000, status: "active" },
+  { id: 5, name: "Kaew", role: "Kitchen Helper", salary: 10000, status: "active" },
+  { id: 6, name: "Noi", role: "Waitress", salary: 12000, status: "active" },
+  { id: 7, name: "Lek", role: "Bartender", salary: 14000, status: "active" },
+  { id: 8, name: "Da", role: "Cashier", salary: 13000, status: "active" },
+];
+let staffIdCounter = 9;
+
+let payLogs = [];
+let payLogIdCounter = 1;
+
 // SSE clients
 let kitchenClients = [];
 let adminClients = [];
@@ -102,7 +118,7 @@ app.delete("/api/menu/:id", (req, res) => {
 
 // Orders
 app.post("/api/orders", (req, res) => {
-  const { tableNumber, items, notes } = req.body;
+  const { tableNumber, items, notes, spicyLevel, allergies } = req.body;
   if (!tableNumber || !items || items.length === 0) {
     return res.status(400).json({ error: "Table number and items required" });
   }
@@ -111,6 +127,8 @@ app.post("/api/orders", (req, res) => {
     tableNumber,
     items: items.map(i => ({ menuItemId: i.id, name: i.name, quantity: i.quantity, price: i.price })),
     notes: notes || "",
+    spicyLevel: spicyLevel || 0,
+    allergies: allergies || [],
     status: "new",
     total: items.reduce((s, i) => s + i.price * i.quantity, 0),
     createdAt: new Date().toISOString(),
@@ -198,6 +216,92 @@ app.get("/api/stats", (req, res) => {
     weeklyRevenue,
     topItems,
     catRevenue,
+  });
+});
+
+// ─── Staff & Payroll ───
+app.get("/api/staff", (req, res) => res.json(staff));
+
+app.post("/api/staff", (req, res) => {
+  const s = { id: staffIdCounter++, name: req.body.name, role: req.body.role, salary: req.body.salary || 0, status: "active" };
+  staff.push(s);
+  res.status(201).json(s);
+});
+
+app.put("/api/staff/:id", (req, res) => {
+  const s = staff.find(x => x.id === parseInt(req.params.id));
+  if (!s) return res.status(404).json({ error: "Not found" });
+  Object.assign(s, req.body, { id: s.id });
+  res.json(s);
+});
+
+app.delete("/api/staff/:id", (req, res) => {
+  staff = staff.filter(x => x.id !== parseInt(req.params.id));
+  res.json({ success: true });
+});
+
+// Pay logs
+app.get("/api/paylogs", (req, res) => {
+  const { month } = req.query;
+  let result = payLogs;
+  if (month) result = result.filter(p => p.date.startsWith(month));
+  res.json(result.sort((a, b) => new Date(b.date) - new Date(a.date)));
+});
+
+app.post("/api/paylogs", (req, res) => {
+  const log = {
+    id: payLogIdCounter++,
+    staffId: req.body.staffId,
+    staffName: req.body.staffName || "",
+    amount: req.body.amount || 0,
+    type: req.body.type || "salary",
+    note: req.body.note || "",
+    date: req.body.date || new Date().toISOString().split("T")[0],
+    createdAt: new Date().toISOString(),
+  };
+  payLogs.push(log);
+  res.status(201).json(log);
+});
+
+app.delete("/api/paylogs/:id", (req, res) => {
+  payLogs = payLogs.filter(p => p.id !== parseInt(req.params.id));
+  res.json({ success: true });
+});
+
+// Financial summary
+app.get("/api/financials", (req, res) => {
+  const { month } = req.query;
+  const now = new Date();
+  const targetMonth = month || `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+
+  const monthOrders = orders.filter(o => o.createdAt.startsWith(targetMonth) && o.status !== "cancelled");
+  const monthPayLogs = payLogs.filter(p => p.date.startsWith(targetMonth));
+
+  const totalRevenue = monthOrders.reduce((s, o) => s + o.total, 0);
+  const totalPayroll = monthPayLogs.reduce((s, p) => s + p.amount, 0);
+  const monthlyBaseSalary = staff.filter(s => s.status === "active").reduce((s, x) => s + x.salary, 0);
+  const totalExpenses = totalPayroll || monthlyBaseSalary;
+  const profit = totalRevenue - totalExpenses;
+
+  // Daily breakdown
+  const dailyData = {};
+  monthOrders.forEach(o => {
+    const day = o.createdAt.split("T")[0];
+    if (!dailyData[day]) dailyData[day] = { revenue: 0, orders: 0 };
+    dailyData[day].revenue += o.total;
+    dailyData[day].orders++;
+  });
+
+  res.json({
+    month: targetMonth,
+    revenue: totalRevenue,
+    expenses: totalExpenses,
+    payroll: totalPayroll || monthlyBaseSalary,
+    profit,
+    orderCount: monthOrders.length,
+    avgOrderValue: monthOrders.length > 0 ? Math.round(totalRevenue / monthOrders.length) : 0,
+    dailyData: Object.entries(dailyData).map(([date, d]) => ({ date, ...d })).sort((a, b) => a.date.localeCompare(b.date)),
+    staffCount: staff.filter(s => s.status === "active").length,
   });
 });
 

@@ -45,6 +45,15 @@
     .oil:last-child{border:none}
     .oiq{background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;font-weight:700;font-size:12px;margin-right:6px}
     .onotes{padding:0 14px 10px;font-size:12px;color:var(--prep);font-style:italic}
+    .ospicy{padding:0 14px 6px;font-size:12px;display:flex;gap:8px;flex-wrap:wrap}
+    .spicy-badge{padding:3px 8px;border-radius:10px;font-weight:700;font-size:11px}
+    .spicy-0{background:rgba(255,255,255,.08);color:var(--dim)}
+    .spicy-1{background:rgba(249,115,22,.15);color:#fb923c}
+    .spicy-2{background:rgba(249,115,22,.25);color:#f97316}
+    .spicy-3{background:rgba(239,68,68,.2);color:#ef4444}
+    .spicy-4{background:rgba(239,68,68,.35);color:#fca5a5;animation:pulse 1s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+    .allergy-badge{padding:3px 8px;border-radius:10px;background:rgba(239,68,68,.2);color:#fca5a5;font-weight:700;font-size:11px}
     .oact{padding:0 14px 12px;display:flex;gap:6px}
     .abtn{flex:1;padding:9px;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.5px}
     .abtn:active{transform:scale(.97)}
@@ -95,6 +104,10 @@ function render(){
   document.getElementById("grid").innerHTML=f.map(o=>`
     <div class="ocard s-${o.status}"><div class="oh"><div><span class="oid">#${o.id}</span> <span class="otime">${ago(o.createdAt)} ago</span></div><div style="display:flex;gap:6px;align-items:center"><span class="otbl">T${o.tableNumber}</span><span class="ost">${o.status}</span></div></div>
     <div class="oi">${o.items.map(i=>`<div class="oil"><span><span class="oiq">${i.quantity}x</span>${i.name}</span><span>฿${i.price*i.quantity}</span></div>`).join("")}</div>
+    <div class="ospicy">
+      ${o.spicyLevel>0?`<span class="spicy-badge spicy-${o.spicyLevel}">${'&#127798;'.repeat(Math.min(o.spicyLevel,3))}${o.spicyLevel>=4?'&#128293;':''} ${['','Mild','Medium','Hot','THAI HOT'][o.spicyLevel]}</span>`:''}
+      ${(o.allergies||[]).map(a=>`<span class="allergy-badge">&#9888; ${a}</span>`).join('')}
+    </div>
     ${o.notes?`<div class="onotes">Note: ${o.notes}</div>`:''}
     <div class="oact">
       ${o.status==="new"?`<button class="abtn abtn-prep" onclick="us(${o.id},'preparing')">Preparing</button>`:''}
